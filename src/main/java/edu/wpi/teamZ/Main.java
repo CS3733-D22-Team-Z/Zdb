@@ -54,13 +54,14 @@ public class Main {
       }
     }
 
+    File f = new File("src/TowerLocations.csv");
+    FileReader fr = new FileReader(f);
+    BufferedReader br = new BufferedReader(fr);
+    String line;
+
     switch (selection) {
       case 1:
-        // TODO: print info
-        File f = new File("src/TowerLocations.csv");
-        FileReader fr = new FileReader(f);
-        BufferedReader br = new BufferedReader(fr);
-        String line;
+        // print info
         while ((line = br.readLine()) != null) {
           // process the line
           System.out.println(line);
@@ -68,6 +69,7 @@ public class Main {
         break;
       case 2:
         // TODO: edit info
+
         break;
       case 3:
         // TODO: new info
