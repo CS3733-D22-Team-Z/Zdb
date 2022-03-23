@@ -42,10 +42,9 @@ public class Main {
     FileReader fr = new FileReader(f);
     BufferedReader br = new BufferedReader(fr);
     String line;
-    line = br.readLine(); // skip headers;
+    line = br.readLine(); // skip first line (headers)
     while ((line = br.readLine()) != null) {
-      String[] args = new String[8];
-      args = line.split(","); // regex split into array of arg strings
+      String[] args = line.split(","); // regex split into array of arg strings
 
       Location input =
           new Location(
