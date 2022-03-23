@@ -28,10 +28,14 @@ public class Main {
   public static void takeAction() {
     Scanner in = new Scanner(System.in);
     int selection = 0;
-    while (selection <= 0 || selection >= 7) {
+    while (selection <= 0 || selection >= 7) { // repeat for invalids
       System.out.println("Selection? ");
-      selection = in.nextInt();
-      if (selection <= 0 || selection >= 7) {
+      String instring = in.nextLine();
+      try {
+        selection = Integer.parseInt(instring);//fail string inputs
+      } catch (NumberFormatException e) {
+      }
+      if (selection <= 0 || selection >= 7) { // invalid input ends up here
         System.out.println("Invalid. Try again.");
       }
     }
