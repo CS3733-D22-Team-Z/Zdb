@@ -61,6 +61,10 @@ public class Main {
 
     switch (selection) {
       case 1:
+        /**
+         * The program displays the list of location nodes along with their attributes. Then the
+         * menu is displayed again and the user prompted for the next selection.
+         */
         // print info
         while ((line = br.readLine()) != null) {
           // process the line
@@ -69,7 +73,6 @@ public class Main {
         break;
       case 2:
         // TODO: edit info
-
         break;
       case 3:
         // TODO: new info
