@@ -30,4 +30,8 @@ public class Location {
     this.longName = longName;
     this.shortName = shortName;
   }
+
+  public Location(String nodeID) {
+    this.nodeID = nodeID;
+  }
 }
