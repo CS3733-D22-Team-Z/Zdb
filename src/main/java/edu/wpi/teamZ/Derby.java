@@ -36,7 +36,44 @@ public class Derby {
       System.out.println("Apache Derby connection established!");
     }
 
+    // create table if not yet created
+    /*try {
+      Statement tableStmt = connection.createStatement();
+      tableStmt.execute(
+          ""
+              + "CREATE TABLE Location ("
+              + "nodeID VARCHAR(15),"
+              + "xcoord INTEGER,"
+              + "ycoord INTEGER ,"
+              + "floor INTEGER,"
+              + "building VARCHAR(20),"
+              + "nodeType VARCHAR(5),"
+              + "longName VARCHAR(50),"
+              + "shortName Varchar(25),"
+              + "constraint LOCATION_PK Primary Key (nodeID))");
+    } catch (SQLException e) {
+      System.out.println("Unable to create new table Location");
+    }*/
+
     // insert SQL statements here
+    try {
+      PreparedStatement pstmt =
+          connection.prepareStatement(
+              "INSERT INTO Location (nodeID, xcoord, ycoord, floor, building, nodeType, longName, shortName) values (?, ?, ?, ?, ?, ?, ?, ?)");
+      // loop through the array to insert into DB
+    } catch (SQLException e) {
+      System.out.println("Insert prepared statements failed to load");
+    }
+
+    // Display location info
+    try {
+      Statement selectStmt = connection.createStatement();
+      selectStmt.execute("SELECT * FROM Location");
+    } catch (SQLException e) {
+      System.out.println("Display not working");
+    }
+
+    //
 
     // close connection!
     // Close the connection!!!!!!
