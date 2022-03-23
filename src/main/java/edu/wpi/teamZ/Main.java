@@ -2,11 +2,15 @@ package edu.wpi.teamZ;
 
 import static java.lang.System.exit;
 
+import java.io.*;
+import java.io.File;
 import java.util.Scanner;
 
 public class Main {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
+
+    checkCSV();
 
     while (true) {
       printUI();
@@ -14,6 +18,20 @@ public class Main {
     }
 
     // App.launch(App.class, args);
+  }
+
+  public static void checkCSV() throws IOException {
+    try {
+      // Get the file
+      File f = new File("src/TowerLocations.csv");
+
+      // Create new file
+      // if it does not exist
+      if (f.createNewFile()) System.out.println("File created");
+      else System.out.println("File already exists");
+    } catch (Exception e) {
+      System.err.println(e);
+    }
   }
 
   public static void printUI() {
@@ -25,7 +43,7 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void takeAction() {
+  public static void takeAction() throws IOException {
     Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
@@ -40,12 +58,22 @@ public class Main {
       }
     }
 
+    File f = new File("src/TowerLocations.csv");
+    FileReader fr = new FileReader(f);
+    BufferedReader br = new BufferedReader(fr);
+    String line;
+
     switch (selection) {
       case 1:
-        // TODO: print info
+        // print info
+        while ((line = br.readLine()) != null) {
+          // process the line
+          System.out.println(line);
+        }
         break;
       case 2:
         // TODO: edit info
+
         break;
       case 3:
         // TODO: new info
