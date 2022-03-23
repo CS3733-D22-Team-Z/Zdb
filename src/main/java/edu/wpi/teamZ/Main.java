@@ -60,5 +60,8 @@ public class Main {
         exit(0);
         break;
     }
+
+    in.close();
   }
+
 }
