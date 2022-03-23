@@ -70,13 +70,22 @@ public class Main {
   public static void takeAction() {
     Scanner in = new Scanner(System.in);
     int selection = 0;
-    while (selection <= 0 || selection >= 7) {
+    while (selection <= 0 || selection >= 7) { // repeat for invalids
       System.out.println("Selection? ");
-      selection = in.nextInt();
-      if (selection <= 0 || selection >= 7) {
+      String instring = in.nextLine();
+      try {
+        selection = Integer.parseInt(instring);//fail string inputs
+      } catch (NumberFormatException ignored) {
+      }
+      if (selection <= 0 || selection >= 7) { // invalid input ends up here
         System.out.println("Invalid. Try again.");
       }
     }
+
+    File f = new File("src/TowerLocations.csv");
+    FileReader fr = new FileReader(f);
+    BufferedReader br = new BufferedReader(fr);
+    String line;
 
     switch (selection) {
       case 1:
@@ -84,6 +93,7 @@ public class Main {
         break;
       case 2:
         // TODO: edit info
+
         break;
       case 3:
         // TODO: new info
@@ -98,5 +108,8 @@ public class Main {
         exit(0);
         break;
     }
+
+    in.close();
   }
+
 }
