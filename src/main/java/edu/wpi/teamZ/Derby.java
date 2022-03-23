@@ -22,18 +22,39 @@ public class Derby {
     Connection connection = null;
 
     try {
-      // substitute your database name for mmyDB
-      connection = DriverManager.getConnection("jdbc:derby:myDB;create=true");
+      // substitute your database name for myDB
+      connection =
+          DriverManager.getConnection(
+              "jdbc:derby:myDB;create=true" + ";user=admin" + ";password=admin");
+
     } catch (SQLException e) {
       System.out.println("Connection failed. Check output console.");
       e.printStackTrace();
       return;
     }
 
+    // set authentication
+    /*try {
+      Statement s = connection.createStatement();
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.connection.requireAuthentication', 'true')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.authentication.provider', 'BUILTIN')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n" + "'derby.user.admin', 'admin')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.database.propertiesOnly', 'true')");
+    } catch (SQLException e) {
+      System.out.println("Failed to set credentials");
+    }*/
+
     if (connection != null) {
       System.out.println("Apache Derby connection established!");
     } else {
-      System.out.println("Apache Derby connection established!");
+      System.out.println("Apache Derby connection failed!");
     }
 
     // create table if not yet created
