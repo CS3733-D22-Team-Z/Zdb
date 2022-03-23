@@ -10,7 +10,8 @@ public class Main {
 
   public static void main(String[] args) throws IOException {
 
-    checkCSV();
+    File f = checkCSV();
+    readCSV(f);
 
     while (true) {
       printUI();
@@ -20,17 +21,40 @@ public class Main {
     // App.launch(App.class, args);
   }
 
-  public static void checkCSV() throws IOException {
-    try {
-      // Get the file
-      File f = new File("src/TowerLocations.csv");
+  public static File checkCSV() {
 
-      // Create new file
-      // if it does not exist
-      if (f.createNewFile()) System.out.println("File created");
-      else System.out.println("File already exists");
-    } catch (Exception e) {
-      System.err.println(e);
+    // Get the file
+    File f = new File("src/TowerLocations.csv");
+
+    // Create new file
+    // if it does not exist
+    if (f.exists()) {
+      System.out.println("File found.");
+    } else {
+      System.out.println("File does not exist in the correct location.\nPlease fix and try again.");
+      exit(0);
+    }
+    return f;
+  }
+
+  public static void readCSV(File f) throws IOException {
+    // File f = new File("src/TowerLocations.csv");
+    FileReader fr = new FileReader(f);
+    BufferedReader br = new BufferedReader(fr);
+    String line;
+    while ((line = br.readLine()) != null) {
+      String[] args = line.split(","); // regex split into array of arg strings
+
+      /*Location input =
+      new Location(
+          args[0], // nodeID
+          Integer.parseInt(args[1]), // xcoord
+          Integer.parseInt(args[2]), // ycoord
+          args[3], // floor
+          args[4], // building
+          args[5], // nodetype
+          args[6], // longName
+          args[7]); // shortName*/
     }
   }
 
@@ -43,7 +67,7 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void takeAction() throws IOException {
+  public static void takeAction() {
     Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
@@ -65,11 +89,7 @@ public class Main {
 
     switch (selection) {
       case 1:
-        // print info
-        while ((line = br.readLine()) != null) {
-          // process the line
-          System.out.println(line);
-        }
+        // TODO: print info
         break;
       case 2:
         // TODO: edit info
