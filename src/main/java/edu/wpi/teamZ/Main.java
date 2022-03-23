@@ -33,7 +33,7 @@ public class Main {
       String instring = in.nextLine();
       try {
         selection = Integer.parseInt(instring);//fail string inputs
-      } catch (NumberFormatException e) {
+      } catch (NumberFormatException ignored) {
       }
       if (selection <= 0 || selection >= 7) { // invalid input ends up here
         System.out.println("Invalid. Try again.");
