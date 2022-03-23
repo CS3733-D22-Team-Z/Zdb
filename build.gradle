@@ -21,6 +21,9 @@ javafx {
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media']
 }
 
+run{
+    standardInput = System.in
+}
 
 dependencies {
     implementation(
