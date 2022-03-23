@@ -42,19 +42,23 @@ public class Main {
     FileReader fr = new FileReader(f);
     BufferedReader br = new BufferedReader(fr);
     String line;
+    line = br.readLine(); // skip headers;
     while ((line = br.readLine()) != null) {
-      String[] args = line.split(","); // regex split into array of arg strings
+      String[] args = new String[8];
+      args = line.split(","); // regex split into array of arg strings
 
-      /*Location input =
-      new Location(
-          args[0], // nodeID
-          Integer.parseInt(args[1]), // xcoord
-          Integer.parseInt(args[2]), // ycoord
-          args[3], // floor
-          args[4], // building
-          args[5], // nodetype
-          args[6], // longName
-          args[7]); // shortName*/
+      Location input =
+          new Location(
+              args[0], // nodeID
+              Integer.parseInt(args[1]), // xcoord
+              Integer.parseInt(args[2]), // ycoord
+              args[3], // floor
+              args[4], // building
+              args[5], // nodetype
+              args[6], // longName
+              args[7]); // shortName
+
+      //TODO: pass to DB
     }
   }
 
@@ -74,18 +78,13 @@ public class Main {
       System.out.println("Selection? ");
       String instring = in.nextLine();
       try {
-        selection = Integer.parseInt(instring);//fail string inputs
+        selection = Integer.parseInt(instring); // fail string inputs
       } catch (NumberFormatException ignored) {
       }
       if (selection <= 0 || selection >= 7) { // invalid input ends up here
         System.out.println("Invalid. Try again.");
       }
     }
-
-    File f = new File("src/TowerLocations.csv");
-    FileReader fr = new FileReader(f);
-    BufferedReader br = new BufferedReader(fr);
-    String line;
 
     switch (selection) {
       case 1:
@@ -111,5 +110,4 @@ public class Main {
 
     in.close();
   }
-
 }
