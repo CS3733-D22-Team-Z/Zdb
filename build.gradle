@@ -6,7 +6,7 @@ plugins {
     id "io.freefair.lombok" version "5.0.0-rc6"
     id 'org.openjfx.javafxplugin' version '0.0.10'
 }
-mainClassName = 'edu.wpi.teamZ.Derby'
+mainClassName = 'edu.wpi.teamZ.Main'
 
 repositories {
     mavenCentral()
@@ -21,6 +21,9 @@ javafx {
     modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.media']
 }
 
+run{
+    standardInput = System.in
+}
 
 dependencies {
     implementation(
