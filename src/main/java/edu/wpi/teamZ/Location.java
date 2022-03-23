@@ -34,4 +34,36 @@ public class Location {
   public Location(String nodeID) {
     this.nodeID = nodeID;
   }
+
+  public String getID() {
+    return this.nodeID;
+  }
+
+  public int getXcoord() {
+    return this.xcoord;
+  }
+
+  public int getYcoord() {
+    return this.ycoord;
+  }
+
+  public String getFloor() {
+    return this.floor;
+  }
+
+  public String getBuilding() {
+    return this.building;
+  }
+
+  public String getNodeType() {
+    return this.nodeType;
+  }
+
+  public String getLongName() {
+    return this.longName;
+  }
+
+  public String getShortName() {
+    return this.shortName;
+  }
 }

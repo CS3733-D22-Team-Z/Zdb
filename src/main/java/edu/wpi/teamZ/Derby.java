@@ -47,6 +47,7 @@ public class Derby {
       s.executeUpdate(
           "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
               + "'derby.database.propertiesOnly', 'true')");
+      System.out.println("Authentication initialized");
     } catch (SQLException e) {
       System.out.println("Failed to set credentials");
     }*/
@@ -58,7 +59,8 @@ public class Derby {
     }
 
     // create table if not yet created
-    /*try {
+    /*
+    try {
       Statement tableStmt = connection.createStatement();
       tableStmt.execute(
           ""
@@ -72,7 +74,9 @@ public class Derby {
               + "longName VARCHAR(50),"
               + "shortName Varchar(25),"
               + "constraint LOCATION_PK Primary Key (nodeID))");
+      System.out.println("Created new table Location");
     } catch (SQLException e) {
+      System.out.println(e.getSQLState());
       System.out.println("Unable to create new table Location");
     }*/
 

@@ -1,24 +1,35 @@
 package edu.wpi.teamZ;
 
 import static java.lang.System.exit;
+import static java.lang.System.in;
 
 import java.io.*;
 import java.io.File;
+import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
 
   public static void main(String[] args) throws IOException {
+    // get the username and password
+    Scanner scanner = new Scanner(System.in);
+    System.out.println("Username: ");
+    String username = scanner.nextLine();
+    System.out.println("Password: ");
+    String pwd = scanner.nextLine();
+
+    scanner.close();
+
+    // Access Database
+    Connection conn = enterDB(username, pwd);
 
     File f = checkCSV();
-    readCSV(f);
+    readCSV(f, conn);
 
     while (true) {
       printUI();
       takeAction();
     }
-
-    // App.launch(App.class, args);
   }
 
   public static File checkCSV() {
@@ -37,7 +48,7 @@ public class Main {
     return f;
   }
 
-  public static void readCSV(File f) throws IOException {
+  public static void readCSV(File f, Connection connection) throws IOException {
     // File f = new File("src/TowerLocations.csv");
     FileReader fr = new FileReader(f);
     BufferedReader br = new BufferedReader(fr);
@@ -59,6 +70,8 @@ public class Main {
               args[7]); // shortName
 
       // TODO: pass to DB
+      insertData(input, connection);
+      input = null;
     }
   }
 
@@ -109,5 +122,107 @@ public class Main {
     }
 
     in.close();
+  }
+
+  public static Connection enterDB(String user, String pwd) {
+    System.out.println("Embedded Apache Derby Connection Start");
+    try {
+      Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+    } catch (ClassNotFoundException e) {
+      System.out.println("Apache Derby Driver not found. Add the classpath to your module.");
+      System.out.println("For IntelliJ do the following:");
+      System.out.println("File | Project Structure, Modules, Dependency tab");
+      System.out.println("Add by clicking on the green plus icon on the right of the window");
+      System.out.println(
+          "Select JARs or directories. Go to the folder where the database JAR is located");
+      System.out.println("Click OK, now you can compile your program and run it.");
+      e.printStackTrace();
+    }
+    System.out.println("Apache Derby driver registered!");
+    Connection connection = null;
+
+    try {
+      // substitute your database name for myDB
+      connection =
+          DriverManager.getConnection(
+              "jdbc:derby:myDB;create=true" + ";user=" + user + ";password=" + pwd);
+
+    } catch (SQLException e) {
+      System.out.println("Connection failed. Check output console.");
+      e.printStackTrace();
+    }
+
+    // set authentication
+    /*try {
+      Statement s = connection.createStatement();
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.connection.requireAuthentication', 'true')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.authentication.provider', 'BUILTIN')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n" + "'derby.user.admin', 'admin')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.database.propertiesOnly', 'true')");
+      System.out.println("Authentication initialized");
+    } catch (SQLException e) {
+      System.out.println("Failed to set credentials");
+    }*/
+
+    if (connection != null) {
+      System.out.println("Apache Derby connection established!");
+    } else {
+      System.out.println("Apache Derby connection failed!");
+      return null;
+    }
+
+    // create table if not yet created
+    /*try {
+      Statement tableStmt = connection.createStatement();
+      tableStmt.execute("DROP TABLE LOCATION");
+      tableStmt.execute(
+          ""
+              + "CREATE TABLE Location ("
+              + "nodeID VARCHAR(15),"
+              + "xcoord INTEGER,"
+              + "ycoord INTEGER ,"
+              + "floor Varchar(5),"
+              + "building VARCHAR(20),"
+              + "nodeType VARCHAR(5),"
+              + "longName VARCHAR(50),"
+              + "shortName Varchar(25),"
+              + "constraint LOCATION_PK Primary Key (nodeID))");
+      System.out.println("Created new table Location");
+    } catch (SQLException e) {
+      System.out.println(e.getSQLState());
+      System.out.println("Unable to create new table Location");
+    }*/
+
+    return connection;
+  }
+
+  public static void insertData(Location info, Connection connection) {
+    try {
+      PreparedStatement pstmt =
+          connection.prepareStatement(
+              "INSERT INTO Location (nodeID, xcoord, ycoord, floor, building, nodeType, longName, shortName) values (?, ?, ?, ?, ?, ?, ?, ?)");
+      pstmt.setString(1, info.getID());
+      pstmt.setInt(2, info.getXcoord());
+      pstmt.setInt(3, info.getYcoord());
+      pstmt.setString(4, info.getFloor());
+      pstmt.setString(5, info.getBuilding());
+      pstmt.setString(6, info.getNodeType());
+      pstmt.setString(7, info.getLongName());
+      pstmt.setString(8, info.getShortName());
+
+      // insert it
+      pstmt.executeUpdate();
+      connection.commit();
+      // loop through the array to insert into DB
+    } catch (SQLException e) {
+      System.out.println("Insert prepared statements failed to load");
+    }
   }
 }
