@@ -22,21 +22,83 @@ public class Derby {
     Connection connection = null;
 
     try {
-      // substitute your database name for mmyDB
-      connection = DriverManager.getConnection("jdbc:derby:myDB;create=true");
+      // substitute your database name for myDB
+      connection =
+          DriverManager.getConnection(
+              "jdbc:derby:myDB;create=true" + ";user=admin" + ";password=admin");
+
     } catch (SQLException e) {
       System.out.println("Connection failed. Check output console.");
       e.printStackTrace();
       return;
     }
 
+    // set authentication
+    /*try {
+      Statement s = connection.createStatement();
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.connection.requireAuthentication', 'true')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.authentication.provider', 'BUILTIN')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n" + "'derby.user.admin', 'admin')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.database.propertiesOnly', 'true')");
+      System.out.println("Authentication initialized");
+    } catch (SQLException e) {
+      System.out.println("Failed to set credentials");
+    }*/
+
     if (connection != null) {
       System.out.println("Apache Derby connection established!");
     } else {
-      System.out.println("Apache Derby connection established!");
+      System.out.println("Apache Derby connection failed!");
     }
 
+    // create table if not yet created
+    /*
+    try {
+      Statement tableStmt = connection.createStatement();
+      tableStmt.execute(
+          ""
+              + "CREATE TABLE Location ("
+              + "nodeID VARCHAR(15),"
+              + "xcoord INTEGER,"
+              + "ycoord INTEGER ,"
+              + "floor INTEGER,"
+              + "building VARCHAR(20),"
+              + "nodeType VARCHAR(5),"
+              + "longName VARCHAR(50),"
+              + "shortName Varchar(25),"
+              + "constraint LOCATION_PK Primary Key (nodeID))");
+      System.out.println("Created new table Location");
+    } catch (SQLException e) {
+      System.out.println(e.getSQLState());
+      System.out.println("Unable to create new table Location");
+    }*/
+
     // insert SQL statements here
+    try {
+      PreparedStatement pstmt =
+          connection.prepareStatement(
+              "INSERT INTO Location (nodeID, xcoord, ycoord, floor, building, nodeType, longName, shortName) values (?, ?, ?, ?, ?, ?, ?, ?)");
+      // loop through the array to insert into DB
+    } catch (SQLException e) {
+      System.out.println("Insert prepared statements failed to load");
+    }
+
+    // Display location info
+    try {
+      Statement selectStmt = connection.createStatement();
+      selectStmt.execute("SELECT * FROM Location");
+    } catch (SQLException e) {
+      System.out.println("Display not working");
+    }
+
+    //
 
     // close connection!
     // Close the connection!!!!!!
