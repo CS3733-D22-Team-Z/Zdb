@@ -18,8 +18,6 @@ public class Main {
     System.out.println("Password: ");
     String pwd = scanner.nextLine();
 
-    scanner.close();
-
     // Access Database
     Connection conn = enterDB(username, pwd);
 
@@ -101,6 +99,7 @@ public class Main {
 
     switch (selection) {
       case 1:
+        displayData(connection, in);
         // TODO: print info
         break;
       case 2:
@@ -121,8 +120,6 @@ public class Main {
         exit(0);
         break;
     }
-
-    in.close();
   }
 
   public static Connection enterDB(String user, String pwd) {
@@ -204,8 +201,67 @@ public class Main {
     return connection;
   }
 
-  public static void deleteData(Connection connection, Scanner in){
+  public static void deleteData(Connection connection, Scanner in) {
+    System.out.println("Enter ID of location:");
+    String id = in.nextLine();
+    // create new location object
+    try {
+      PreparedStatement stmt3 = connection.prepareStatement("DELETE FROM Location WHERE Nodeid=?");
+      stmt3.setString(1, id);
+      stmt3.execute();
+      connection.commit();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
 
+  public static void displayData(Connection connection, Scanner in) {
+    // Display location info
+    try {
+      Statement selectStmt = connection.createStatement();
+      ResultSet rset = selectStmt.executeQuery("SELECT * FROM Location");
+
+      String nodeID = "";
+      int xcoord = 0;
+      int ycoord = 0;
+      String floor = "";
+      String building = "";
+      String nodeType = "";
+      String longName = "";
+      String shortName = "";
+
+      while (rset.next()) {
+        nodeID = rset.getString("nodeID");
+        xcoord = rset.getInt("xcoord");
+        ycoord = rset.getInt("ycoord");
+        floor = rset.getString("floor");
+        building = rset.getString("building");
+        nodeType = rset.getString("nodeType");
+        longName = rset.getString("longName");
+        shortName = rset.getString("shortName");
+
+        System.out.println(
+            "NodeID: "
+                + nodeID
+                + " xcoord: "
+                + xcoord
+                + " ycoord: "
+                + ycoord
+                + " floor: "
+                + floor
+                + " building: "
+                + building
+                + " nodeType: "
+                + nodeType
+                + " LongName: "
+                + longName
+                + " ShortName: "
+                + shortName);
+      }
+
+    } catch (SQLException e) {
+      System.out.println("Display not working");
+    }
   }
 
   public static void insertData(Location info, Connection connection) {
