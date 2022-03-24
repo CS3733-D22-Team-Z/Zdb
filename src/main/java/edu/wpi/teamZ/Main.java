@@ -18,8 +18,6 @@ public class Main {
     System.out.println("Password: ");
     String pwd = scanner.nextLine();
 
-    scanner.close();
-
     // Access Database
     Connection conn = enterDB(username, pwd);
 
@@ -28,7 +26,7 @@ public class Main {
 
     while (true) {
       printUI();
-      takeAction();
+      takeAction(conn);
     }
   }
 
@@ -84,7 +82,7 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void takeAction() {
+  public static void takeAction(Connection connection) {
     Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
@@ -101,6 +99,7 @@ public class Main {
 
     switch (selection) {
       case 1:
+        displayData(connection, in);
         // TODO: print info
         break;
       case 2:
@@ -108,6 +107,7 @@ public class Main {
 
         break;
       case 3:
+        insertData(connection, in);
         // TODO: new info
         break;
       case 4:
@@ -120,8 +120,6 @@ public class Main {
         exit(0);
         break;
     }
-
-    in.close();
   }
 
   public static Connection enterDB(String user, String pwd) {
@@ -201,6 +199,71 @@ public class Main {
     }*/
 
     return connection;
+  }
+
+  public static void insertData(Connection connection, Scanner in) {
+    System.out.println("Enter ID of location:");
+    String id = in.nextLine();
+    Location l = new Location(id);
+    insertData(l, connection);
+    /*try {
+      PreparedStatement stmt2 =
+          connection.prepareStatement("INSERT INTO Location(nodeID) VALUES ?");
+      stmt2.setString(1, id);
+      stmt2.execute();
+      connection.commit();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }*/
+  }
+
+  public static void displayData(Connection connection, Scanner in) {
+    // Display location info
+    try {
+      Statement selectStmt = connection.createStatement();
+      ResultSet rset = selectStmt.executeQuery("SELECT * FROM Location");
+
+      String nodeID = "";
+      int xcoord = 0;
+      int ycoord = 0;
+      String floor = "";
+      String building = "";
+      String nodeType = "";
+      String longName = "";
+      String shortName = "";
+
+      while (rset.next()) {
+        nodeID = rset.getString("nodeID");
+        xcoord = rset.getInt("xcoord");
+        ycoord = rset.getInt("ycoord");
+        floor = rset.getString("floor");
+        building = rset.getString("building");
+        nodeType = rset.getString("nodeType");
+        longName = rset.getString("longName");
+        shortName = rset.getString("shortName");
+
+        System.out.println(
+            "NodeID: "
+                + nodeID
+                + " xcoord: "
+                + xcoord
+                + " ycoord: "
+                + ycoord
+                + " floor: "
+                + floor
+                + " building: "
+                + building
+                + " nodeType: "
+                + nodeType
+                + " LongName: "
+                + longName
+                + " ShortName: "
+                + shortName);
+      }
+
+    } catch (SQLException e) {
+      System.out.println("Display not working");
+    }
   }
 
   public static void insertData(Location info, Connection connection) {
