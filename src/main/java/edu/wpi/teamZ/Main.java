@@ -62,6 +62,7 @@ public class Main {
     String line;
     line = br.readLine(); // skip first line (headers)
     while ((line = br.readLine()) != null) {
+      System.out.println(line);
       String[] args = line.split(","); // regex split into array of arg strings
 
       Location input =
@@ -88,6 +89,62 @@ public class Main {
     System.out.println("4 – Delete Location");
     System.out.println("5 – Save Locations to CSV file");
     System.out.println("6 – Exit Program");
+  }
+
+
+  public static void dataToCSV(Connection conn, Scanner in) {
+    System.out.println("Enter a filepath to save to, including filename: ");
+    String path = in.nextLine();
+
+    // path = path.replaceAll("\\\\", "\\");
+    File writeTo = new File(path);
+    FileWriter writer = null;
+    try {
+      writer = new FileWriter(writeTo);
+    } catch (IOException e) {
+      System.out.println("Error occurred writing file.");
+    }
+    if (writer != null) {
+      try (Statement stmt = conn.createStatement()) {
+        ResultSet rs = stmt.executeQuery("select * from LOCATION"); // get all records
+        writer.write(
+            String.join(
+                    ",",
+                    "nodeID",
+                    "xcoord",
+                    "ycoord",
+                    "floor",
+                    "building",
+                    "nodeType",
+                    "longName",
+                    "shortName")
+                + "\n");
+        while (rs.next()) {
+          writer.write(
+              String.join(
+                      ",",
+                      rs.getString("NODEID"),
+                      rs.getString("XCOORD"),
+                      rs.getString("YCOORD"),
+                      rs.getString("FLOOR"),
+                      rs.getString("BUILDING"),
+                      rs.getString("NODETYPE"),
+                      rs.getString("LONGNAME"),
+                      rs.getString("SHORTNAME"))
+                  + "\n");
+        }
+      } catch (SQLException e) {
+        System.out.println("Query failed.");
+      } catch (IOException e) {
+        System.out.println("File write failed.");
+      }
+
+      try {
+        writer.close();
+      } catch (IOException e) {
+        System.out.println("File writer close failed.");
+      }
+    }
   }
 
   public static void takeAction(Scanner in, Connection conn) {
@@ -124,7 +181,7 @@ public class Main {
         deleteData(conn, in);
         break;
       case 5:
-        // TODO: export
+        dataToCSV(conn, in);
         break;
       case 6:
         done = true;
@@ -162,53 +219,12 @@ public class Main {
       e.printStackTrace();
     }
 
-    // set authentication
-    /*try {
-      Statement s = connection.createStatement();
-      s.executeUpdate(
-          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
-              + "'derby.connection.requireAuthentication', 'true')");
-      s.executeUpdate(
-          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
-              + "'derby.authentication.provider', 'BUILTIN')");
-      s.executeUpdate(
-          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n" + "'derby.user.admin', 'admin')");
-      s.executeUpdate(
-          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
-              + "'derby.database.propertiesOnly', 'true')");
-      System.out.println("Authentication initialized");
-    } catch (SQLException e) {
-      System.out.println("Failed to set credentials");
-    }*/
-
     if (connection != null) {
       System.out.println("Apache Derby connection established!");
     } else {
       System.out.println("Apache Derby connection failed!");
       return null;
     }
-
-    // create table if not yet created
-    /*try {
-      Statement tableStmt = connection.createStatement();
-      tableStmt.execute("DROP TABLE LOCATION");
-      tableStmt.execute(
-          ""
-              + "CREATE TABLE Location ("
-              + "nodeID VARCHAR(15),"
-              + "xcoord INTEGER,"
-              + "ycoord INTEGER ,"
-              + "floor Varchar(5),"
-              + "building VARCHAR(20),"
-              + "nodeType VARCHAR(5),"
-              + "longName VARCHAR(50),"
-              + "shortName Varchar(25),"
-              + "constraint LOCATION_PK Primary Key (nodeID))");
-      System.out.println("Created new table Location");
-    } catch (SQLException e) {
-      System.out.println(e.getSQLState());
-      System.out.println("Unable to create new table Location");
-    }*/
 
     return connection;
   }
