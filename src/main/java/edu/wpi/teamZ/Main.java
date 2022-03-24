@@ -62,6 +62,7 @@ public class Main {
     String line;
     line = br.readLine(); // skip first line (headers)
     while ((line = br.readLine()) != null) {
+      System.out.println(line);
       String[] args = line.split(","); // regex split into array of arg strings
 
       Location input =
@@ -91,7 +92,6 @@ public class Main {
   }
 
   public static void printAll(Connection conn) {
-    CallableStatement getall = null;
     try (Statement stmt = conn.createStatement()) {
       ResultSet rs = stmt.executeQuery("select * from LOCATION"); // get all records
       System.out.printf(
@@ -112,6 +112,61 @@ public class Main {
       }
     } catch (SQLException e) {
       System.out.println("Query failed.");
+    }
+  }
+
+  public static void dataToCSV(Connection conn, Scanner in) {
+    System.out.println("Enter a filepath to save to, including filename: ");
+    String path = in.nextLine();
+
+    // path = path.replaceAll("\\\\", "\\");
+    File writeTo = new File(path);
+    FileWriter writer = null;
+    try {
+      writer = new FileWriter(writeTo);
+    } catch (IOException e) {
+      System.out.println("Error occurred writing file.");
+    }
+    if (writer != null) {
+      try (Statement stmt = conn.createStatement()) {
+        ResultSet rs = stmt.executeQuery("select * from LOCATION"); // get all records
+        writer.write(
+            String.join(
+                    ",",
+                    "nodeID",
+                    "xcoord",
+                    "ycoord",
+                    "floor",
+                    "building",
+                    "nodeType",
+                    "longName",
+                    "shortName")
+                + "\n");
+        while (rs.next()) {
+          writer.write(
+              String.join(
+                      ",",
+                      rs.getString("NODEID"),
+                      rs.getString("XCOORD"),
+                      rs.getString("YCOORD"),
+                      rs.getString("FLOOR"),
+                      rs.getString("BUILDING"),
+                      rs.getString("NODETYPE"),
+                      rs.getString("LONGNAME"),
+                      rs.getString("SHORTNAME"))
+                  + "\n");
+        }
+      } catch (SQLException e) {
+        System.out.println("Query failed.");
+      } catch (IOException e) {
+        System.out.println("File write failed.");
+      }
+
+      try {
+        writer.close();
+      } catch (IOException e) {
+        System.out.println("File writer close failed.");
+      }
     }
   }
 
@@ -145,7 +200,7 @@ public class Main {
         // TODO: delete info
         break;
       case 5:
-        // TODO: export
+        dataToCSV(conn, in);
         break;
       case 6:
         done = true;
@@ -189,7 +244,6 @@ public class Main {
       System.out.println("Apache Derby connection failed!");
       return null;
     }
-
 
     return connection;
   }
