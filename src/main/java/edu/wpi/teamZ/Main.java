@@ -206,15 +206,7 @@ public class Main {
     String id = in.nextLine();
     Location l = new Location(id);
     insertData(l, connection);
-    /*try {
-      PreparedStatement stmt2 =
-          connection.prepareStatement("INSERT INTO Location(nodeID) VALUES ?");
-      stmt2.setString(1, id);
-      stmt2.execute();
-      connection.commit();
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }*/
+
   }
 
   public static void displayData(Connection connection, Scanner in) {
