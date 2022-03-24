@@ -221,7 +221,7 @@ public class Main {
       connection.commit();
 
     } catch (SQLException e) {
-      e.printStackTrace();
+      System.out.println("Cannot update location");
     }
   }
 
