@@ -105,7 +105,7 @@ public class Main {
         displayData(connection, in);
         break;
       case 2:
-        update(connection);
+        update(connection, in);
         break;
       case 3:
         // TODO: new info
@@ -203,14 +203,13 @@ public class Main {
     return connection;
   }
 
-  public static void update(Connection connection) {
-    Scanner scan = new Scanner(System.in);
+  public static void update(Connection connection, Scanner in) {
     System.out.println("Enter ID of location:");
-    String id = scan.nextLine();
+    String id = in.nextLine();
     System.out.println("Enter new floor:");
-    String floor = scan.nextLine();
+    String floor = in.nextLine();
     System.out.println("Enter new location type");
-    String type = scan.nextLine();
+    String type = in.nextLine();
     try {
       PreparedStatement stmt =
           connection.prepareStatement("UPDATE Location SET floor=?, nodeTYPE =? WHERE nodeID =?");
