@@ -108,8 +108,8 @@ public class Main {
     switch (selection) {
       case 1:
         displayData(conn, in);
-        //printAll(conn);
-        
+        // printAll(conn);
+
         break;
       case 2:
         // TODO: edit info
@@ -117,8 +117,8 @@ public class Main {
         break;
       case 3:
         // TODO: new info
-        //Location newLoc = getNewLocation(in);
-        //insertData(newLoc, conn);
+        // Location newLoc = getNewLocation(in);
+        // insertData(newLoc, conn);
         break;
       case 4:
         // TODO: delete info
@@ -266,12 +266,12 @@ public class Main {
       String nodeType = "";
       String longName = "";
       String shortName = "";
-      
+
       System.out.printf(
-          " %10s | %6s | %6s | %5s | %8s | %8s | %45s | %20s\n",    //this is all for the header
+          " %10s | %6s | %6s | %5s | %8s | %8s | %45s | %20s\n", // this is all for the header
           "nodeID", "xcoord", "ycoord", "floor", "building", "nodeType", "Long Name", "Short Name");
-      
-      System.out.println("-".repeat(130));//dividing bar between header and data
+
+      System.out.println("-".repeat(130)); // dividing bar between header and data
 
       while (rset.next()) {
         nodeID = rset.getString("nodeID");
@@ -282,17 +282,10 @@ public class Main {
         nodeType = rset.getString("nodeType");
         longName = rset.getString("longName");
         shortName = rset.getString("shortName");
-        
-        System.out.printf(//actual printout. Will need to be fixed should column ordering change.
+
+        System.out.printf( // actual printout. Will need to be fixed should column ordering change.
             " %10s | %6d | %6d | %5s | %8s | %8s | %45s | %20s\n",
-            nodeID,
-            xcoord,
-            ycoord,
-            floor,
-            building,
-            nodeType
-            longName,
-            shortName;
+            nodeID, xcoord, ycoord, floor, building, nodeType, longName, shortName);
       }
 
     } catch (SQLException e) {
@@ -300,7 +293,7 @@ public class Main {
     }
   }
 
-  public static void getNewLocation(Scanner in){
-    //System.out
+  public static void getNewLocation(Scanner in) {
+    // System.out
   }
 }
