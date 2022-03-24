@@ -90,31 +90,6 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void printAll(Connection conn) {
-    CallableStatement getall = null;
-    try (Statement stmt = conn.createStatement()) {
-      ResultSet rs = stmt.executeQuery("select * from LOCATION");//get all records
-      System.out.printf(
-          " %10s | %6s | %6s | %5s | %8s | %8s | %45s | %20s\n",    //this is all for the header
-          "nodeID", "xcoord", "ycoord", "floor", "building", "nodeType", "Long Name", "Short Name");
-      System.out.println("-".repeat(130));//dividing bar between header and data
-      while (rs.next()) {
-        System.out.printf(//actual printout. Will need to be fixed should column ordering change.
-            " %10s | %6d | %6d | %5s | %8s | %8s | %45s | %20s\n",
-            rs.getString("NODEID"),
-            Integer.parseInt(rs.getString("XCOORD")),
-            Integer.parseInt(rs.getString("YCOORD")),
-            rs.getString("FLOOR"),
-            rs.getString("BUILDING"),
-            rs.getString("NODETYPE"),
-            rs.getString("LONGNAME"),
-            rs.getString("SHORTNAME"));
-      }
-    } catch (SQLException e) {
-      System.out.println("Query failed.");
-    }
-  }
-
   public static void takeAction(Scanner in, Connection conn) {
     // Scanner in = new Scanner(System.in);
     int selection = 0;
@@ -132,7 +107,9 @@ public class Main {
 
     switch (selection) {
       case 1:
-        printAll(conn);
+        displayData(conn, in);
+        //printAll(conn);
+        
         break;
       case 2:
         // TODO: edit info
@@ -140,6 +117,8 @@ public class Main {
         break;
       case 3:
         // TODO: new info
+        //Location newLoc = getNewLocation(in);
+        //insertData(newLoc, conn);
         break;
       case 4:
         // TODO: delete info
@@ -255,5 +234,73 @@ public class Main {
     } catch (SQLException e) {
       System.out.println("Insert prepared statements failed to load");
     }
+  }
+
+  public static void displayData(Connection connection, Scanner in) {
+    // Ask if display all or display 1
+    System.out.println(
+        "Select which location you want to view using NodeID\n"
+            + "If you want to view all type ALL: ");
+    String option = in.nextLine();
+
+    // Display location info
+    try {
+      PreparedStatement selectStmt =
+          connection.prepareStatement("SELECT * FROM Location WHERE NODEID = ?");
+      selectStmt.setString(1, option);
+      if (option.equals("ALL")) {
+        selectStmt = connection.prepareStatement("SELECT * FROM Location");
+      }
+
+      ResultSet rset = selectStmt.executeQuery();
+
+      /*if (!rset.next()) {
+        System.out.println("NodeID not valid/found");
+      }*/
+
+      String nodeID = "";
+      int xcoord = 0;
+      int ycoord = 0;
+      String floor = "";
+      String building = "";
+      String nodeType = "";
+      String longName = "";
+      String shortName = "";
+      
+      System.out.printf(
+          " %10s | %6s | %6s | %5s | %8s | %8s | %45s | %20s\n",    //this is all for the header
+          "nodeID", "xcoord", "ycoord", "floor", "building", "nodeType", "Long Name", "Short Name");
+      
+      System.out.println("-".repeat(130));//dividing bar between header and data
+
+      while (rset.next()) {
+        nodeID = rset.getString("nodeID");
+        xcoord = rset.getInt("xcoord");
+        ycoord = rset.getInt("ycoord");
+        floor = rset.getString("floor");
+        building = rset.getString("building");
+        nodeType = rset.getString("nodeType");
+        longName = rset.getString("longName");
+        shortName = rset.getString("shortName");
+        
+        System.out.printf(//actual printout. Will need to be fixed should column ordering change.
+            " %10s | %6d | %6d | %5s | %8s | %8s | %45s | %20s\n",
+            nodeID,
+            xcoord,
+            ycoord,
+            floor,
+            building,
+            nodeType
+            longName,
+            shortName;
+      }
+
+    } catch (SQLException e) {
+      System.out.println("Display not working");
+    }
+  }
+
+  public static void getNewLocation(Scanner in){
+    //System.out
   }
 }
