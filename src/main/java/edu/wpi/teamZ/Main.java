@@ -28,7 +28,7 @@ public class Main {
 
     while (true) {
       printUI();
-      takeAction();
+      takeAction(conn);
     }
   }
 
@@ -84,7 +84,7 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void takeAction() {
+  public static void takeAction(Connection connection) {
     Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
@@ -111,6 +111,7 @@ public class Main {
         // TODO: new info
         break;
       case 4:
+        deleteData(connection, in);
         // TODO: delete info
         break;
       case 5:
@@ -201,6 +202,10 @@ public class Main {
     }*/
 
     return connection;
+  }
+
+  public static void deleteData(Connection connection, Scanner in){
+
   }
 
   public static void insertData(Location info, Connection connection) {
