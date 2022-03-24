@@ -112,8 +112,7 @@ public class Main {
 
         break;
       case 2:
-        // TODO: edit info
-
+        update(conn, in);
         break;
       case 3:
         // TODO: new info
@@ -295,5 +294,27 @@ public class Main {
 
   public static void getNewLocation(Scanner in) {
     // System.out
+  }
+
+  public static void update(Connection connection, Scanner in) {
+    System.out.println("Enter ID of location:");
+    String id = in.nextLine();
+    System.out.println("Enter new floor:");
+    String floor = in.nextLine();
+    System.out.println("Enter new location type");
+    String type = in.nextLine();
+    try {
+      PreparedStatement stmt =
+          connection.prepareStatement("UPDATE Location SET floor=?, nodeTYPE =? WHERE nodeID =?");
+      stmt.setString(1, floor);
+      stmt.setString(2, type);
+      stmt.setString(3, id);
+
+      stmt.executeUpdate();
+      connection.commit();
+
+    } catch (SQLException e) {
+      System.out.println("Cannot update location");
+    }
   }
 }
