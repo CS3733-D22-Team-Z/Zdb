@@ -18,7 +18,7 @@ public class Main {
     System.out.println("Password: ");
     String pwd = scanner.nextLine();
 
-    scanner.close();
+    // scanner.close();
 
     // Access Database
     Connection conn = enterDB(username, pwd);
@@ -28,7 +28,7 @@ public class Main {
 
     while (true) {
       printUI();
-      takeAction();
+      takeAction(conn);
     }
   }
 
@@ -84,7 +84,7 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void takeAction() {
+  public static void takeAction(Connection connection) {
     Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
@@ -104,8 +104,7 @@ public class Main {
         // TODO: print info
         break;
       case 2:
-        // TODO: edit info
-
+        update(connection);
         break;
       case 3:
         // TODO: new info
@@ -121,7 +120,7 @@ public class Main {
         break;
     }
 
-    in.close();
+    /// in.close();
   }
 
   public static Connection enterDB(String user, String pwd) {
@@ -201,6 +200,30 @@ public class Main {
     }*/
 
     return connection;
+  }
+
+  public static void update(Connection connection) {
+    Scanner scan = new Scanner(System.in);
+    System.out.println("Enter ID of location:");
+    String id = scan.nextLine();
+    System.out.println("Enter new floor:");
+    String floor = scan.nextLine();
+    System.out.println("Enter new location type");
+    String type = scan.nextLine();
+    try {
+      PreparedStatement stmt =
+          connection.prepareStatement(
+              "UPDATE Location SET floor=?, nodeTYPE =? WHERE nodeID =?");
+      stmt.setString(1, floor);
+      stmt.setString(2, type);
+      stmt.setString(3, id);
+
+      stmt.executeUpdate();
+      connection.commit();
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   public static void insertData(Location info, Connection connection) {
