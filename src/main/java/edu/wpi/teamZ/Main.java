@@ -93,13 +93,13 @@ public class Main {
   public static void printAll(Connection conn) {
     CallableStatement getall = null;
     try (Statement stmt = conn.createStatement()) {
-      ResultSet rs = stmt.executeQuery("select * from LOCATION");
+      ResultSet rs = stmt.executeQuery("select * from LOCATION");//get all records
       System.out.printf(
-          " %10s | %6s | %6s | %5s | %8s | %8s | %45s | %20s\n",
+          " %10s | %6s | %6s | %5s | %8s | %8s | %45s | %20s\n",    //this is all for the header
           "nodeID", "xcoord", "ycoord", "floor", "building", "nodeType", "Long Name", "Short Name");
-      System.out.println("-".repeat(130));
+      System.out.println("-".repeat(130));//dividing bar between header and data
       while (rs.next()) {
-        System.out.printf(
+        System.out.printf(//actual printout. Will need to be fixed should column ordering change.
             " %10s | %6d | %6d | %5s | %8s | %8s | %45s | %20s\n",
             rs.getString("NODEID"),
             Integer.parseInt(rs.getString("XCOORD")),
