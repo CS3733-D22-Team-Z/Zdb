@@ -70,7 +70,7 @@ public class Main {
               args[7]); // shortName
 
       // TODO: pass to DB
-      insertData(input, connection);
+      // insertData(input, connection);
       input = null;
     }
   }
@@ -102,6 +102,7 @@ public class Main {
     switch (selection) {
       case 1:
         // TODO: print info
+        displayData(connection, in);
         break;
       case 2:
         update(connection);
@@ -212,8 +213,7 @@ public class Main {
     String type = scan.nextLine();
     try {
       PreparedStatement stmt =
-          connection.prepareStatement(
-              "UPDATE Location SET floor=?, nodeTYPE =? WHERE nodeID =?");
+          connection.prepareStatement("UPDATE Location SET floor=?, nodeTYPE =? WHERE nodeID =?");
       stmt.setString(1, floor);
       stmt.setString(2, type);
       stmt.setString(3, id);
@@ -223,6 +223,55 @@ public class Main {
 
     } catch (SQLException e) {
       e.printStackTrace();
+    }
+  }
+
+  public static void displayData(Connection connection, Scanner in) {
+    // Display location info
+    try {
+      Statement selectStmt = connection.createStatement();
+      ResultSet rset = selectStmt.executeQuery("SELECT * FROM Location");
+
+      String nodeID = "";
+      int xcoord = 0;
+      int ycoord = 0;
+      String floor = "";
+      String building = "";
+      String nodeType = "";
+      String longName = "";
+      String shortName = "";
+
+      while (rset.next()) {
+        nodeID = rset.getString("nodeID");
+        xcoord = rset.getInt("xcoord");
+        ycoord = rset.getInt("ycoord");
+        floor = rset.getString("floor");
+        building = rset.getString("building");
+        nodeType = rset.getString("nodeType");
+        longName = rset.getString("longName");
+        shortName = rset.getString("shortName");
+
+        System.out.println(
+            "NodeID: "
+                + nodeID
+                + " xcoord: "
+                + xcoord
+                + " ycoord: "
+                + ycoord
+                + " floor: "
+                + floor
+                + " building: "
+                + building
+                + " nodeType: "
+                + nodeType
+                + " LongName: "
+                + longName
+                + " ShortName: "
+                + shortName);
+      }
+
+    } catch (SQLException e) {
+      System.out.println("Display not working");
     }
   }
 
