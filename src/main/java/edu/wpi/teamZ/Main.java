@@ -9,6 +9,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
+  public static boolean done = false;
 
   public static void main(String[] args) throws IOException {
     // get the username and password
@@ -18,15 +19,23 @@ public class Main {
     System.out.println("Password: ");
     String pwd = scanner.nextLine();
 
+    // scanner.close();
+
     // Access Database
     Connection conn = enterDB(username, pwd);
 
     File f = checkCSV();
     readCSV(f, conn);
 
-    while (true) {
+    while (!done) {
       printUI();
-      takeAction(conn);
+      takeAction(scanner, conn);
+    }
+    scanner.close();
+    try {
+      conn.close();
+    } catch (SQLException e) {
+      System.out.println("connection close failed. How odd.");
     }
   }
 
@@ -51,10 +60,9 @@ public class Main {
     FileReader fr = new FileReader(f);
     BufferedReader br = new BufferedReader(fr);
     String line;
-    line = br.readLine(); // skip headers;
+    line = br.readLine(); // skip first line (headers)
     while ((line = br.readLine()) != null) {
-      String[] args = new String[8];
-      args = line.split(","); // regex split into array of arg strings
+      String[] args = line.split(","); // regex split into array of arg strings
 
       Location input =
           new Location(
@@ -82,8 +90,33 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void takeAction(Connection connection) {
-    Scanner in = new Scanner(System.in);
+  public static void printAll(Connection conn) {
+    CallableStatement getall = null;
+    try (Statement stmt = conn.createStatement()) {
+      ResultSet rs = stmt.executeQuery("select * from LOCATION");//get all records
+      System.out.printf(
+          " %10s | %6s | %6s | %5s | %8s | %8s | %45s | %20s\n",    //this is all for the header
+          "nodeID", "xcoord", "ycoord", "floor", "building", "nodeType", "Long Name", "Short Name");
+      System.out.println("-".repeat(130));//dividing bar between header and data
+      while (rs.next()) {
+        System.out.printf(//actual printout. Will need to be fixed should column ordering change.
+            " %10s | %6d | %6d | %5s | %8s | %8s | %45s | %20s\n",
+            rs.getString("NODEID"),
+            Integer.parseInt(rs.getString("XCOORD")),
+            Integer.parseInt(rs.getString("YCOORD")),
+            rs.getString("FLOOR"),
+            rs.getString("BUILDING"),
+            rs.getString("NODETYPE"),
+            rs.getString("LONGNAME"),
+            rs.getString("SHORTNAME"));
+      }
+    } catch (SQLException e) {
+      System.out.println("Query failed.");
+    }
+  }
+
+  public static void takeAction(Scanner in, Connection conn) {
+    // Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
       System.out.println("Selection? ");
@@ -99,8 +132,7 @@ public class Main {
 
     switch (selection) {
       case 1:
-        displayData(connection, in);
-        // TODO: print info
+        printAll(conn);
         break;
       case 2:
         // TODO: edit info
@@ -110,16 +142,17 @@ public class Main {
         // TODO: new info
         break;
       case 4:
-        deleteData(connection, in);
         // TODO: delete info
         break;
       case 5:
         // TODO: export
         break;
       case 6:
-        exit(0);
+        done = true;
         break;
     }
+
+    // in.close();
   }
 
   public static Connection enterDB(String user, String pwd) {
@@ -199,69 +232,6 @@ public class Main {
     }*/
 
     return connection;
-  }
-
-  public static void deleteData(Connection connection, Scanner in) {
-    System.out.println("Enter ID of location:");
-    String id = in.nextLine();
-    // create new location object
-    try {
-      PreparedStatement stmt3 = connection.prepareStatement("DELETE FROM Location WHERE Nodeid=?");
-      stmt3.setString(1, id);
-      stmt3.execute();
-      connection.commit();
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-  }
-
-  public static void displayData(Connection connection, Scanner in) {
-    // Display location info
-    try {
-      Statement selectStmt = connection.createStatement();
-      ResultSet rset = selectStmt.executeQuery("SELECT * FROM Location");
-
-      String nodeID = "";
-      int xcoord = 0;
-      int ycoord = 0;
-      String floor = "";
-      String building = "";
-      String nodeType = "";
-      String longName = "";
-      String shortName = "";
-
-      while (rset.next()) {
-        nodeID = rset.getString("nodeID");
-        xcoord = rset.getInt("xcoord");
-        ycoord = rset.getInt("ycoord");
-        floor = rset.getString("floor");
-        building = rset.getString("building");
-        nodeType = rset.getString("nodeType");
-        longName = rset.getString("longName");
-        shortName = rset.getString("shortName");
-
-        System.out.println(
-            "NodeID: "
-                + nodeID
-                + " xcoord: "
-                + xcoord
-                + " ycoord: "
-                + ycoord
-                + " floor: "
-                + floor
-                + " building: "
-                + building
-                + " nodeType: "
-                + nodeType
-                + " LongName: "
-                + longName
-                + " ShortName: "
-                + shortName);
-      }
-
-    } catch (SQLException e) {
-      System.out.println("Display not working");
-    }
   }
 
   public static void insertData(Location info, Connection connection) {
