@@ -18,7 +18,7 @@ public class Main {
     System.out.println("Password: ");
     String pwd = scanner.nextLine();
 
-    scanner.close();
+    // scanner.close();
 
     // Access Database
     Connection conn = enterDB(username, pwd);
@@ -28,8 +28,9 @@ public class Main {
 
     while (true) {
       printUI();
-      takeAction();
+      takeAction(scanner);
     }
+    // scanner.close();
   }
 
   public static File checkCSV() {
@@ -83,8 +84,8 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void takeAction() {
-    Scanner in = new Scanner(System.in);
+  public static void takeAction(Scanner in) {
+    // Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
       System.out.println("Selection? ");
@@ -120,7 +121,7 @@ public class Main {
         break;
     }
 
-    in.close();
+    // in.close();
   }
 
   public static Connection enterDB(String user, String pwd) {
