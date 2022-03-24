@@ -32,10 +32,9 @@ public class Main {
       takeAction(scanner, conn);
     }
     scanner.close();
-    try{
+    try {
       conn.close();
-    }
-    catch(SQLException e){
+    } catch (SQLException e) {
       System.out.println("connection close failed. How odd.");
     }
   }
@@ -66,15 +65,15 @@ public class Main {
       String[] args = line.split(","); // regex split into array of arg strings
 
       Location input =
-              new Location(
-                      args[0], // nodeID
-                      Integer.parseInt(args[1]), // xcoord
-                      Integer.parseInt(args[2]), // ycoord
-                      args[3], // floor
-                      args[4], // building
-                      args[5], // nodetype
-                      args[6], // longName
-                      args[7]); // shortName
+          new Location(
+              args[0], // nodeID
+              Integer.parseInt(args[1]), // xcoord
+              Integer.parseInt(args[2]), // ycoord
+              args[3], // floor
+              args[4], // building
+              args[5], // nodetype
+              args[6], // longName
+              args[7]); // shortName
 
       // TODO: pass to DB
       insertData(input, connection);
@@ -90,8 +89,30 @@ public class Main {
     System.out.println("5 – Save Locations to CSV file");
     System.out.println("6 – Exit Program");
   }
-  public static void printAll(Connection conn){
 
+  public static void printAll(Connection conn) {
+    CallableStatement getall = null;
+    try (Statement stmt = conn.createStatement()) {
+      ResultSet rs = stmt.executeQuery("select * from LOCATION");
+      System.out.printf(
+          " %10s | %6s | %6s | %5s | %8s | %8s | %45s | %20s\n",
+          "nodeID", "xcoord", "ycoord", "floor", "building", "nodeType", "Long Name", "Short Name");
+      System.out.println("-".repeat(130));
+      while (rs.next()) {
+        System.out.printf(
+            " %10s | %6d | %6d | %5s | %8s | %8s | %45s | %20s\n",
+            rs.getString("NODEID"),
+            Integer.parseInt(rs.getString("XCOORD")),
+            Integer.parseInt(rs.getString("YCOORD")),
+            rs.getString("FLOOR"),
+            rs.getString("BUILDING"),
+            rs.getString("NODETYPE"),
+            rs.getString("LONGNAME"),
+            rs.getString("SHORTNAME"));
+      }
+    } catch (SQLException e) {
+      System.out.println("Query failed.");
+    }
   }
 
   public static void takeAction(Scanner in, Connection conn) {
@@ -144,7 +165,7 @@ public class Main {
       System.out.println("File | Project Structure, Modules, Dependency tab");
       System.out.println("Add by clicking on the green plus icon on the right of the window");
       System.out.println(
-              "Select JARs or directories. Go to the folder where the database JAR is located");
+          "Select JARs or directories. Go to the folder where the database JAR is located");
       System.out.println("Click OK, now you can compile your program and run it.");
       e.printStackTrace();
     }
@@ -154,8 +175,8 @@ public class Main {
     try {
       // substitute your database name for myDB
       connection =
-              DriverManager.getConnection(
-                      "jdbc:derby:myDB;create=true" + ";user=" + user + ";password=" + pwd);
+          DriverManager.getConnection(
+              "jdbc:derby:myDB;create=true" + ";user=" + user + ";password=" + pwd);
 
     } catch (SQLException e) {
       System.out.println("Connection failed. Check output console.");
@@ -216,8 +237,8 @@ public class Main {
   public static void insertData(Location info, Connection connection) {
     try {
       PreparedStatement pstmt =
-              connection.prepareStatement(
-                      "INSERT INTO Location (nodeID, xcoord, ycoord, floor, building, nodeType, longName, shortName) values (?, ?, ?, ?, ?, ?, ?, ?)");
+          connection.prepareStatement(
+              "INSERT INTO Location (nodeID, xcoord, ycoord, floor, building, nodeType, longName, shortName) values (?, ?, ?, ?, ?, ?, ?, ?)");
       pstmt.setString(1, info.getID());
       pstmt.setInt(2, info.getXcoord());
       pstmt.setInt(3, info.getYcoord());
