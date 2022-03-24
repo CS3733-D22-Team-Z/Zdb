@@ -9,6 +9,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
+  public static boolean done = false;
 
   public static void main(String[] args) throws IOException {
     // get the username and password
@@ -18,7 +19,7 @@ public class Main {
     System.out.println("Password: ");
     String pwd = scanner.nextLine();
 
-    scanner.close();
+    // scanner.close();
 
     // Access Database
     Connection conn = enterDB(username, pwd);
@@ -26,9 +27,15 @@ public class Main {
     File f = checkCSV();
     readCSV(f, conn);
 
-    while (true) {
+    while (!done) {
       printUI();
-      takeAction(conn);
+      takeAction(scanner, conn);
+    }
+    scanner.close();
+    try {
+      conn.close();
+    } catch (SQLException e) {
+      System.out.println("connection close failed. How odd.");
     }
   }
 
@@ -53,10 +60,9 @@ public class Main {
     FileReader fr = new FileReader(f);
     BufferedReader br = new BufferedReader(fr);
     String line;
-    line = br.readLine(); // skip headers;
+    line = br.readLine(); // skip first line (headers)
     while ((line = br.readLine()) != null) {
-      String[] args = new String[8];
-      args = line.split(","); // regex split into array of arg strings
+      String[] args = line.split(","); // regex split into array of arg strings
 
       Location input =
           new Location(
@@ -84,8 +90,8 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void takeAction(Connection conn) {
-    Scanner in = new Scanner(System.in);
+  public static void takeAction(Scanner in, Connection conn) {
+    // Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
       System.out.println("Selection? ");
@@ -102,6 +108,8 @@ public class Main {
     switch (selection) {
       case 1:
         displayData(conn, in);
+        //printAll(conn);
+        
         break;
       case 2:
         // TODO: edit info
@@ -119,11 +127,11 @@ public class Main {
         // TODO: export
         break;
       case 6:
-        exit(0);
+        done = true;
         break;
     }
 
-    in.close();
+    // in.close();
   }
 
   public static Connection enterDB(String user, String pwd) {
@@ -258,6 +266,12 @@ public class Main {
       String nodeType = "";
       String longName = "";
       String shortName = "";
+      
+      System.out.printf(
+          " %10s | %6s | %6s | %5s | %8s | %8s | %45s | %20s\n",    //this is all for the header
+          "nodeID", "xcoord", "ycoord", "floor", "building", "nodeType", "Long Name", "Short Name");
+      
+      System.out.println("-".repeat(130));//dividing bar between header and data
 
       while (rset.next()) {
         nodeID = rset.getString("nodeID");
@@ -268,24 +282,17 @@ public class Main {
         nodeType = rset.getString("nodeType");
         longName = rset.getString("longName");
         shortName = rset.getString("shortName");
-
-        System.out.println(
-            "NodeID: "
-                + nodeID
-                + " xcoord: "
-                + xcoord
-                + " ycoord: "
-                + ycoord
-                + " floor: "
-                + floor
-                + " building: "
-                + building
-                + " nodeType: "
-                + nodeType
-                + " LongName: "
-                + longName
-                + " ShortName: "
-                + shortName);
+        
+        System.out.printf(//actual printout. Will need to be fixed should column ordering change.
+            " %10s | %6d | %6d | %5s | %8s | %8s | %45s | %20s\n",
+            nodeID,
+            xcoord,
+            ycoord,
+            floor,
+            building,
+            nodeType
+            longName,
+            shortName;
       }
 
     } catch (SQLException e) {
