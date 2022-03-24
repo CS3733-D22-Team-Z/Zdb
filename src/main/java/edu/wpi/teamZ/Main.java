@@ -28,7 +28,7 @@ public class Main {
 
     while (true) {
       printUI();
-      takeAction();
+      takeAction(conn);
     }
   }
 
@@ -84,7 +84,7 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void takeAction() {
+  public static void takeAction(Connection conn) {
     Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
@@ -101,7 +101,7 @@ public class Main {
 
     switch (selection) {
       case 1:
-        // TODO: print info
+        displayData(conn, in);
         break;
       case 2:
         // TODO: edit info
@@ -109,6 +109,8 @@ public class Main {
         break;
       case 3:
         // TODO: new info
+        //Location newLoc = getNewLocation(in);
+        //insertData(newLoc, conn);
         break;
       case 4:
         // TODO: delete info
@@ -224,5 +226,74 @@ public class Main {
     } catch (SQLException e) {
       System.out.println("Insert prepared statements failed to load");
     }
+  }
+
+  public static void displayData(Connection connection, Scanner in) {
+    // Ask if display all or display 1
+    System.out.println(
+        "Select which location you want to view using NodeID\n"
+            + "If you want to view all type ALL: ");
+    String option = in.nextLine();
+
+    // Display location info
+    try {
+      PreparedStatement selectStmt =
+          connection.prepareStatement("SELECT * FROM Location WHERE NODEID = ?");
+      selectStmt.setString(1, option);
+      if (option.equals("ALL")) {
+        selectStmt = connection.prepareStatement("SELECT * FROM Location");
+      }
+
+      ResultSet rset = selectStmt.executeQuery();
+
+      /*if (!rset.next()) {
+        System.out.println("NodeID not valid/found");
+      }*/
+
+      String nodeID = "";
+      int xcoord = 0;
+      int ycoord = 0;
+      String floor = "";
+      String building = "";
+      String nodeType = "";
+      String longName = "";
+      String shortName = "";
+
+      while (rset.next()) {
+        nodeID = rset.getString("nodeID");
+        xcoord = rset.getInt("xcoord");
+        ycoord = rset.getInt("ycoord");
+        floor = rset.getString("floor");
+        building = rset.getString("building");
+        nodeType = rset.getString("nodeType");
+        longName = rset.getString("longName");
+        shortName = rset.getString("shortName");
+
+        System.out.println(
+            "NodeID: "
+                + nodeID
+                + " xcoord: "
+                + xcoord
+                + " ycoord: "
+                + ycoord
+                + " floor: "
+                + floor
+                + " building: "
+                + building
+                + " nodeType: "
+                + nodeType
+                + " LongName: "
+                + longName
+                + " ShortName: "
+                + shortName);
+      }
+
+    } catch (SQLException e) {
+      System.out.println("Display not working");
+    }
+  }
+
+  public static void getNewLocation(Scanner in){
+    //System.out
   }
 }
