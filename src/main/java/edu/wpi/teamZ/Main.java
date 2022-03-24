@@ -9,6 +9,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class Main {
+    public static boolean done = false;
 
   public static void main(String[] args) throws IOException {
     // get the username and password
@@ -26,11 +27,11 @@ public class Main {
     File f = checkCSV();
     readCSV(f, conn);
 
-    while (true) {
+    while (!done) {
       printUI();
       takeAction(scanner);
     }
-    // scanner.close();
+     scanner.close();
   }
 
   public static File checkCSV() {
@@ -117,7 +118,7 @@ public class Main {
         // TODO: export
         break;
       case 6:
-        exit(0);
+        done = true;
         break;
     }
 
