@@ -75,8 +75,8 @@ public class Main {
               args[6], // longName
               args[7]); // shortName
 
-      // TODO: pass to DB
-      insertData(input, connection);
+      // Uncomment if haven't added to database
+      // insertData(input, connection);
       input = null;
     }
   }
@@ -116,11 +116,12 @@ public class Main {
         break;
       case 3:
         // TODO: new info
-        // Location newLoc = getNewLocation(in);
-        // insertData(newLoc, conn);
+        Location newLoc = getNewLocation(in);
+        insertData(newLoc, conn);
         break;
       case 4:
         // TODO: delete info
+        deleteData(conn, in);
         break;
       case 5:
         // TODO: export
@@ -292,8 +293,32 @@ public class Main {
     }
   }
 
-  public static void getNewLocation(Scanner in) {
-    // System.out
+  public static Location getNewLocation(Scanner in) {
+    System.out.println("Please give NodeID:");
+    String id = in.nextLine();
+
+    System.out.println("Please give x coordinate: ");
+    int xcoord = Integer.parseInt(in.nextLine());
+
+    System.out.println("Please give y coordinate: ");
+    int ycoord = Integer.parseInt(in.nextLine());
+
+    System.out.println("Please give the floor: ");
+    String floor = in.nextLine();
+
+    System.out.println("Please give the building of the location: ");
+    String building = in.nextLine();
+
+    System.out.println("Please give the type of location: ");
+    String type = in.nextLine();
+
+    System.out.println("Please give the long name of location: ");
+    String lName = in.nextLine();
+
+    System.out.println("Please give the abbreviation of the location: ");
+    String sName = in.nextLine();
+
+    return new Location(id, xcoord, ycoord, floor, building, type, lName, sName);
   }
 
   public static void update(Connection connection, Scanner in) {
@@ -315,6 +340,21 @@ public class Main {
 
     } catch (SQLException e) {
       System.out.println("Cannot update location");
+    }
+  }
+
+  public static void deleteData(Connection connection, Scanner in) {
+    System.out.println("Enter ID of location:");
+    String id = in.nextLine();
+    // Delete using SQP
+    try {
+      PreparedStatement stmt3 = connection.prepareStatement("DELETE FROM Location WHERE Nodeid=?");
+      stmt3.setString(1, id);
+      stmt3.execute();
+      connection.commit();
+    } catch (SQLException e) {
+      System.out.println("ID not found");
+      e.printStackTrace();
     }
   }
 }
