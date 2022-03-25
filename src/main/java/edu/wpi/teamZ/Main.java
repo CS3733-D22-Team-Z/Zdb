@@ -97,9 +97,16 @@ public class Main {
   }
 
   public static void dataToCSV(Connection conn, Scanner in) {
-    System.out.println("Enter a filepath to save to, including filename: ");
+    System.out.println(
+        "Enter a filepath from home to save to, including filename (Default to Downloads\\output.csv with \"ENTER\"): ");
+    System.out.println(
+        "Example for folder \"outfolder\" on Desktop: \\Desktop\\outfolder\\filename.csv");
     String path = in.nextLine();
-
+    if (path.compareToIgnoreCase("") == 0) {
+      path = System.getProperty("user.home") + "\\Downloads\\output.csv";
+    } else {
+      path = System.getProperty("user.home") + path;
+    }
     // path = path.replaceAll("\\\\", "\\");
     File writeTo = new File(path);
     FileWriter writer = null;
