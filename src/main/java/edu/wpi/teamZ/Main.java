@@ -91,7 +91,6 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-
   public static void dataToCSV(Connection conn, Scanner in) {
     System.out.println("Enter a filepath to save to, including filename: ");
     String path = in.nextLine();
@@ -173,7 +172,7 @@ public class Main {
         break;
       case 3:
         // TODO: new info
-        Location newLoc = getNewLocation(in);
+        Location newLoc = getNewLocation(conn, in);
         insertData(newLoc, conn);
         break;
       case 4:
@@ -309,9 +308,30 @@ public class Main {
     }
   }
 
-  public static Location getNewLocation(Scanner in) {
+  public static Location getNewLocation(Connection connection, Scanner in) {
+    int sameID = 1;
+
     System.out.println("Please give NodeID:");
     String id = in.nextLine();
+    while (sameID == 1) {
+      try {
+        PreparedStatement stmt =
+            connection.prepareStatement("SELECT COUNT(*) FROM Location WHERE Nodeid=?");
+        stmt.setString(1, id);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+          if (rs.getInt(1) == 1) {
+            System.out.println("Node ID already exists please enter another Node ID");
+            id = in.nextLine();
+          } else {
+            sameID = 0;
+          }
+        }
+        connection.commit();
+      } catch (SQLException e) {
+        sameID = 0;
+      }
+    }
 
     System.out.println("Please give x coordinate: ");
     int xcoord = Integer.parseInt(in.nextLine());
