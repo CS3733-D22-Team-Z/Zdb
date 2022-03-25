@@ -66,4 +66,12 @@ public class Location {
   public String getShortName() {
     return this.shortName;
   }
+
+  public void setFloor(String name) {
+    this.floor = name;
+  }
+
+  public void setNodeType(String type) {
+    this.nodeType = type;
+  }
 }

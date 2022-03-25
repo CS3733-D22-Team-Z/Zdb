@@ -6,6 +6,7 @@ import static java.lang.System.in;
 import java.io.*;
 import java.io.File;
 import java.sql.*;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Main {
@@ -24,12 +25,15 @@ public class Main {
     // Access Database
     Connection conn = enterDB(username, pwd);
 
+    // Initialize hashmap
+    HashMap<String, Location> locationObjects = new HashMap<>();
+
     File f = checkCSV();
-    readCSV(f, conn);
+    readCSV(f, conn, locationObjects);
 
     while (!done) {
       printUI();
-      takeAction(scanner, conn);
+      takeAction(scanner, conn, locationObjects);
     }
     scanner.close();
     try {
@@ -55,7 +59,8 @@ public class Main {
     return f;
   }
 
-  public static void readCSV(File f, Connection connection) throws IOException {
+  public static void readCSV(File f, Connection connection, HashMap<String, Location> map)
+      throws IOException {
     // File f = new File("src/TowerLocations.csv");
     FileReader fr = new FileReader(f);
     BufferedReader br = new BufferedReader(fr);
@@ -77,7 +82,7 @@ public class Main {
               args[7]); // shortName
 
       // Uncomment if haven't added to database
-      // insertData(input, connection);
+      insertData(input, connection, map);
       input = null;
     }
   }
@@ -92,9 +97,16 @@ public class Main {
   }
 
   public static void dataToCSV(Connection conn, Scanner in) {
-    System.out.println("Enter a filepath to save to, including filename: ");
+    System.out.println(
+        "Enter a filepath from home to save to, including filename (Default to Downloads\\output.csv with \"ENTER\"): ");
+    System.out.println(
+        "Example for folder \"outfolder\" on Desktop: \\Desktop\\outfolder\\filename.csv");
     String path = in.nextLine();
-
+    if (path.compareToIgnoreCase("") == 0) {
+      path = System.getProperty("user.home") + "\\Downloads\\output.csv";
+    } else {
+      path = System.getProperty("user.home") + path;
+    }
     // path = path.replaceAll("\\\\", "\\");
     File writeTo = new File(path);
     FileWriter writer = null;
@@ -146,7 +158,7 @@ public class Main {
     }
   }
 
-  public static void takeAction(Scanner in, Connection conn) {
+  public static void takeAction(Scanner in, Connection conn, HashMap<String, Location> map) {
     // Scanner in = new Scanner(System.in);
     int selection = 0;
     while (selection <= 0 || selection >= 7) { // repeat for invalids
@@ -163,17 +175,17 @@ public class Main {
 
     switch (selection) {
       case 1:
-        displayData(conn, in);
+        displayData(conn, in, map);
         // printAll(conn);
 
         break;
       case 2:
-        update(conn, in);
+        update(conn, in, map);
         break;
       case 3:
         // TODO: new info
-        Location newLoc = getNewLocation(conn, in);
-        insertData(newLoc, conn);
+        Location newLoc = getNewLocation(in);
+        insertData(newLoc, conn, map);
         break;
       case 4:
         // TODO: delete info
@@ -218,6 +230,25 @@ public class Main {
       e.printStackTrace();
     }
 
+    // set authentication
+    /*try {
+      Statement s = connection.createStatement();
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.connection.requireAuthentication', 'true')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.authentication.provider', 'BUILTIN')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n" + "'derby.user.admin', 'admin')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.database.propertiesOnly', 'true')");
+      System.out.println("Authentication initialized");
+    } catch (SQLException e) {
+      System.out.println("Failed to set credentials");
+    }*/
+
     if (connection != null) {
       System.out.println("Apache Derby connection established!");
     } else {
@@ -225,10 +256,33 @@ public class Main {
       return null;
     }
 
+    try {
+      Statement tableStmt = connection.createStatement();
+      tableStmt.execute("DROP TABLE Location");
+      tableStmt.execute(
+          ""
+              + "CREATE TABLE Location ("
+              + "nodeID VARCHAR(15),"
+              + "xcoord INTEGER,"
+              + "ycoord INTEGER ,"
+              + "floor VARCHAR(10),"
+              + "building VARCHAR(20),"
+              + "nodeType VARCHAR(5),"
+              + "longName VARCHAR(50),"
+              + "shortName Varchar(50),"
+              + "constraint LOCATION_PK Primary Key (nodeID))");
+      System.out.println("Created new table Location");
+    } catch (SQLException e) {
+      System.out.println(e.getSQLState());
+      System.out.println("Unable to create new table Location");
+    }
+
     return connection;
   }
 
-  public static void insertData(Location info, Connection connection) {
+  public static void insertData(
+      Location info, Connection connection, HashMap<String, Location> map) {
+    map.put(info.getID(), info);
     try {
       PreparedStatement pstmt =
           connection.prepareStatement(
@@ -251,7 +305,7 @@ public class Main {
     }
   }
 
-  public static void displayData(Connection connection, Scanner in) {
+  public static void displayData(Connection connection, Scanner in, HashMap<String, Location> map) {
     // Ask if display all or display 1
     System.out.println(
         "Select which location you want to view using NodeID\n"
@@ -261,10 +315,10 @@ public class Main {
     // Display location info
     try {
       PreparedStatement selectStmt =
-          connection.prepareStatement("SELECT * FROM Location WHERE NODEID = ?");
+          connection.prepareStatement("SELECT NODEID FROM Location WHERE NODEID = ?");
       selectStmt.setString(1, option);
       if (option.equals("ALL")) {
-        selectStmt = connection.prepareStatement("SELECT * FROM Location");
+        selectStmt = connection.prepareStatement("SELECT NODEID FROM Location");
       }
 
       ResultSet rset = selectStmt.executeQuery();
@@ -290,13 +344,24 @@ public class Main {
 
       while (rset.next()) {
         nodeID = rset.getString("nodeID");
-        xcoord = rset.getInt("xcoord");
-        ycoord = rset.getInt("ycoord");
-        floor = rset.getString("floor");
-        building = rset.getString("building");
-        nodeType = rset.getString("nodeType");
-        longName = rset.getString("longName");
-        shortName = rset.getString("shortName");
+        //        xcoord = rset.getInt("xcoord");
+        //        ycoord = rset.getInt("ycoord");
+        //        floor = rset.getString("floor");
+        //        building = rset.getString("building");
+        //        nodeType = rset.getString("nodeType");
+        //        longName = rset.getString("longName");
+        //        shortName = rset.getString("shortName");
+
+        Location temp = map.get(nodeID);
+
+        // Get info
+        xcoord = temp.getXcoord();
+        ycoord = temp.getYcoord();
+        floor = temp.getFloor();
+        building = temp.getBuilding();
+        nodeType = temp.getNodeType();
+        longName = temp.getLongName();
+        shortName = temp.getShortName();
 
         System.out.printf( // actual printout. Will need to be fixed should column ordering change.
             " %10s | %6d | %6d | %5s | %8s | %8s | %45s | %20s\n",
@@ -357,7 +422,7 @@ public class Main {
     return new Location(id, xcoord, ycoord, floor, building, type, lName, sName);
   }
 
-  public static void update(Connection connection, Scanner in) {
+  public static void update(Connection connection, Scanner in, HashMap<String, Location> map) {
     System.out.println("Enter ID of location:");
     String id = in.nextLine();
     System.out.println("Enter new floor:");
@@ -377,9 +442,14 @@ public class Main {
     } catch (SQLException e) {
       System.out.println("Cannot update location");
     }
+
+    Location temp = map.get(id);
+    temp.setFloor(floor);
+    temp.setNodeType(type);
+    map.put(id, temp);
   }
 
-  public static void deleteData(Connection connection, Scanner in) {
+  public static void deleteData(Connection connection, Scanner in, HashMap<String, Location> map) {
     System.out.println("Enter ID of location:");
     String id = in.nextLine();
     // Delete using SQP
@@ -392,5 +462,7 @@ public class Main {
       System.out.println("ID not found");
       e.printStackTrace();
     }
+
+    map.remove(id);
   }
 }
