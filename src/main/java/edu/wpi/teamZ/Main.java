@@ -462,14 +462,14 @@ public class Main {
       stmt.executeUpdate();
       connection.commit();
 
+      Location temp = map.get(id);
+      temp.setFloor(floor);
+      temp.setNodeType(type);
+      map.put(id, temp);
+
     } catch (SQLException e) {
       System.out.println("Cannot update location");
     }
-
-    Location temp = map.get(id);
-    temp.setFloor(floor);
-    temp.setNodeType(type);
-    map.put(id, temp);
   }
 
   public static void deleteData(Connection connection, Scanner in, HashMap<String, Location> map) {
@@ -481,11 +481,10 @@ public class Main {
       stmt3.setString(1, id);
       stmt3.execute();
       connection.commit();
+      map.remove(id);
     } catch (SQLException e) {
       System.out.println("ID not found");
       e.printStackTrace();
     }
-
-    map.remove(id);
   }
 }
