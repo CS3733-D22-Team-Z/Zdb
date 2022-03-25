@@ -223,11 +223,51 @@ public class Main {
       e.printStackTrace();
     }
 
+    // set authentication
+    /*try {
+      Statement s = connection.createStatement();
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.connection.requireAuthentication', 'true')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.authentication.provider', 'BUILTIN')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n" + "'derby.user.admin', 'admin')");
+      s.executeUpdate(
+          "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
+              + "'derby.database.propertiesOnly', 'true')");
+      System.out.println("Authentication initialized");
+    } catch (SQLException e) {
+      System.out.println("Failed to set credentials");
+    }*/
+
     if (connection != null) {
       System.out.println("Apache Derby connection established!");
     } else {
       System.out.println("Apache Derby connection failed!");
       return null;
+    }
+
+    try {
+      Statement tableStmt = connection.createStatement();
+      tableStmt.execute("DROP TABLE Location");
+      tableStmt.execute(
+          ""
+              + "CREATE TABLE Location ("
+              + "nodeID VARCHAR(15),"
+              + "xcoord INTEGER,"
+              + "ycoord INTEGER ,"
+              + "floor VARCHAR(10),"
+              + "building VARCHAR(20),"
+              + "nodeType VARCHAR(5),"
+              + "longName VARCHAR(50),"
+              + "shortName Varchar(50),"
+              + "constraint LOCATION_PK Primary Key (nodeID))");
+      System.out.println("Created new table Location");
+    } catch (SQLException e) {
+      System.out.println(e.getSQLState());
+      System.out.println("Unable to create new table Location");
     }
 
     return connection;
