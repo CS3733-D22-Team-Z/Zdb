@@ -67,7 +67,7 @@ public class Main {
     String line;
     line = br.readLine(); // skip first line (headers)
     while ((line = br.readLine()) != null) {
-      System.out.println(line);
+      // System.out.println(line);
       String[] args = line.split(","); // regex split into array of arg strings
 
       Location input =
