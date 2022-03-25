@@ -183,12 +183,10 @@ public class Main {
         update(conn, in, map);
         break;
       case 3:
-        // TODO: new info
         Location newLoc = getNewLocation(conn, in);
         insertData(newLoc, conn, map);
         break;
       case 4:
-        // TODO: delete info
         deleteData(conn, in, map);
         break;
       case 5:
@@ -314,11 +312,13 @@ public class Main {
 
     // Display location info
     try {
-      PreparedStatement selectStmt =
-          connection.prepareStatement("SELECT NODEID FROM Location WHERE NODEID = ?");
-      selectStmt.setString(1, option);
+      PreparedStatement selectStmt;
       if (option.equals("ALL")) {
         selectStmt = connection.prepareStatement("SELECT NODEID FROM Location");
+      } else {
+        option = databaseID(connection, option, in);
+        selectStmt = connection.prepareStatement("SELECT NODEID FROM Location WHERE NODEID = ?");
+        selectStmt.setString(1, option);
       }
 
       ResultSet rset = selectStmt.executeQuery();
@@ -378,7 +378,7 @@ public class Main {
 
     System.out.println("Please give NodeID:");
     String id = in.nextLine();
-    while (sameID) {
+    while (sameID) { // test ID is not in database
       try {
         PreparedStatement stmt =
             connection.prepareStatement("SELECT COUNT(*) FROM Location WHERE Nodeid=?");
@@ -423,28 +423,9 @@ public class Main {
   }
 
   public static void update(Connection connection, Scanner in, HashMap<String, Location> map) {
-    boolean duplicate = true;
     System.out.println("Enter ID of location:");
     String id = in.nextLine();
-    while (duplicate) {
-      try {
-        PreparedStatement stmt =
-            connection.prepareStatement("SELECT COUNT(*) FROM Location WHERE Nodeid=?");
-        stmt.setString(1, id);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-          if (rs.getInt(1) == 0) {
-            System.out.println("Node ID does not exists please enter another Node ID");
-            id = in.nextLine();
-          } else {
-            duplicate = false;
-          }
-        }
-        connection.commit();
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-    }
+    id = databaseID(connection, id, in); // test if ID is in database
     System.out.println("Enter new floor:");
     String floor = in.nextLine();
     System.out.println("Enter new location type");
@@ -459,6 +440,8 @@ public class Main {
       stmt.executeUpdate();
       connection.commit();
 
+      System.out.println("nodeID " + id + " has been updated \n");
+
     } catch (SQLException e) {
       System.out.println("Cannot update location");
     }
@@ -472,17 +455,43 @@ public class Main {
   public static void deleteData(Connection connection, Scanner in, HashMap<String, Location> map) {
     System.out.println("Enter ID of location:");
     String id = in.nextLine();
+    id = databaseID(connection, id, in);
     // Delete using SQP
     try {
       PreparedStatement stmt3 = connection.prepareStatement("DELETE FROM Location WHERE Nodeid=?");
       stmt3.setString(1, id);
       stmt3.execute();
       connection.commit();
+      System.out.println("NodeID " + id + (" has been deleted\n"));
     } catch (SQLException e) {
       System.out.println("ID not found");
       e.printStackTrace();
     }
 
     map.remove(id);
+  }
+
+  public static String databaseID(Connection connection, String id, Scanner in) {
+    Boolean uniqueID = true;
+    while (uniqueID) { // Test ID is in database
+      try {
+        PreparedStatement stmt =
+            connection.prepareStatement("SELECT COUNT(*) FROM Location WHERE Nodeid=?");
+        stmt.setString(1, id);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+          if (rs.getInt(1) == 0) {
+            System.out.println("Node ID does not exists please enter another Node ID");
+            id = in.nextLine();
+          } else {
+            uniqueID = false;
+          }
+        }
+        connection.commit();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+    return id;
   }
 }
