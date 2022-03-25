@@ -374,11 +374,11 @@ public class Main {
   }
 
   public static Location getNewLocation(Connection connection, Scanner in) {
-    int sameID = 1;
+    boolean sameID = true;
 
     System.out.println("Please give NodeID:");
     String id = in.nextLine();
-    while (sameID == 1) {
+    while (sameID) {
       try {
         PreparedStatement stmt =
             connection.prepareStatement("SELECT COUNT(*) FROM Location WHERE Nodeid=?");
@@ -389,12 +389,12 @@ public class Main {
             System.out.println("Node ID already exists please enter another Node ID");
             id = in.nextLine();
           } else {
-            sameID = 0;
+            sameID = false;
           }
         }
         connection.commit();
       } catch (SQLException e) {
-        sameID = 0;
+        e.printStackTrace();
       }
     }
 
@@ -423,8 +423,28 @@ public class Main {
   }
 
   public static void update(Connection connection, Scanner in, HashMap<String, Location> map) {
+    boolean duplicate = true;
     System.out.println("Enter ID of location:");
     String id = in.nextLine();
+    while (duplicate) {
+      try {
+        PreparedStatement stmt =
+            connection.prepareStatement("SELECT COUNT(*) FROM Location WHERE Nodeid=?");
+        stmt.setString(1, id);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+          if (rs.getInt(1) == 0) {
+            System.out.println("Node ID does not exists please enter another Node ID");
+            id = in.nextLine();
+          } else {
+            duplicate = false;
+          }
+        }
+        connection.commit();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
     System.out.println("Enter new floor:");
     String floor = in.nextLine();
     System.out.println("Enter new location type");
