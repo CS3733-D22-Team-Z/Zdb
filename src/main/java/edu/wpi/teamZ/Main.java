@@ -96,7 +96,7 @@ public class Main {
     System.out.println("6 – Exit Program");
   }
 
-  public static void dataToCSV(Connection conn, Scanner in) {
+  public static void dataToCSV(Connection conn, Scanner in, HashMap<String, Location> map) {
     System.out.println(
         "Enter a filepath from home to save to, including filename (Default to Downloads\\output.csv with \"ENTER\"): ");
     System.out.println(
@@ -117,7 +117,18 @@ public class Main {
     }
     if (writer != null) {
       try (Statement stmt = conn.createStatement()) {
-        ResultSet rs = stmt.executeQuery("select * from LOCATION"); // get all records
+        //        ResultSet rs = stmt.executeQuery("select * from LOCATION"); // get all records
+        ResultSet rs = stmt.executeQuery("SELECT NODEID FROM Location"); // Changed from above -AB
+
+        String nodeID = "";
+        int xcoord = 0;
+        int ycoord = 0;
+        String floor = "";
+        String building = "";
+        String nodeType = "";
+        String longName = "";
+        String shortName = "";
+
         writer.write(
             String.join(
                     ",",
@@ -131,17 +142,50 @@ public class Main {
                     "shortName")
                 + "\n");
         while (rs.next()) {
+          //          writer.write(
+          //              String.join(
+          //                      ",",
+          //                      rs.getString("NODEID"),
+          //                      rs.getString("XCOORD"),
+          //                      rs.getString("YCOORD"),
+          //                      rs.getString("FLOOR"),
+          //                      rs.getString("BUILDING"),
+          //                      rs.getString("NODETYPE"),
+          //                      rs.getString("LONGNAME"),
+          //                      rs.getString("SHORTNAME"))
+          //                  + "\n");
+
+          nodeID = rs.getString("nodeID");
+          //          xcoord = rs.getInt("xcoord");
+          //          ycoord = rs.getInt("ycoord");
+          //          floor = rs.getString("floor");
+          //          building = rs.getString("building");
+          //          nodeType = rs.getString("nodeType");
+          //          longName = rs.getString("longName");
+          //          shortName = rs.getString("shortName");
+
+          Location temp = map.get(nodeID);
+
+          // Get info
+          xcoord = temp.getXcoord();
+          ycoord = temp.getYcoord();
+          floor = temp.getFloor();
+          building = temp.getBuilding();
+          nodeType = temp.getNodeType();
+          longName = temp.getLongName();
+          shortName = temp.getShortName();
+
           writer.write(
               String.join(
                       ",",
-                      rs.getString("NODEID"),
-                      rs.getString("XCOORD"),
-                      rs.getString("YCOORD"),
-                      rs.getString("FLOOR"),
-                      rs.getString("BUILDING"),
-                      rs.getString("NODETYPE"),
-                      rs.getString("LONGNAME"),
-                      rs.getString("SHORTNAME"))
+                      nodeID,
+                      Integer.toString(xcoord),
+                      Integer.toString(ycoord),
+                      floor,
+                      building,
+                      nodeType,
+                      longName,
+                      shortName)
                   + "\n");
         }
       } catch (SQLException e) {
@@ -192,7 +236,7 @@ public class Main {
         deleteData(conn, in, map);
         break;
       case 5:
-        dataToCSV(conn, in);
+        dataToCSV(conn, in, map);
         break;
       case 6:
         done = true;
