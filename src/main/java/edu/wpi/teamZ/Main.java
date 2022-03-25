@@ -109,7 +109,11 @@ public class Main {
         "Enter a filepath from home to save to, including filename (Default to Downloads\\output.csv with \"ENTER\"): ");
     System.out.println(
         "Example for folder \"outfolder\" on Desktop: \\Desktop\\outfolder\\filename.csv");
+    System.out.println("Alternatively, \"Cancel\" to cancel and return to menu.");
     String path = in.nextLine();
+    if (path.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
     if (path.compareToIgnoreCase("") == 0) {
       path = System.getProperty("user.home") + "\\Downloads\\output.csv";
     } else {
@@ -192,7 +196,9 @@ public class Main {
         break;
       case 3:
         Location newLoc = getNewLocation(conn, in);
-        insertData(newLoc, conn, map);
+        if (newLoc != null){
+          insertData(newLoc, conn, map);
+        }
         break;
       case 4:
         deleteData(conn, in, map);
@@ -314,9 +320,11 @@ public class Main {
     // Ask if display all or display 1
     System.out.println(
         "Select which location you want to view using NodeID\n"
-            + "If you want to view all type ALL: ");
+            + "If you want to view all type ALL, \"cancel\" to cancel:" );
     String option = in.nextLine();
-
+    if (option.compareToIgnoreCase("cancel") == 0){
+      return;
+    }
     // Display location info
     try {
       PreparedStatement selectStmt;
@@ -324,6 +332,9 @@ public class Main {
         selectStmt = connection.prepareStatement("SELECT NODEID FROM Location");
       } else {
         option = databaseID(connection, option, in);
+        if (option == null){
+          return;
+        }
         selectStmt = connection.prepareStatement("SELECT NODEID FROM Location WHERE NODEID = ?");
         selectStmt.setString(1, option);
       }
@@ -383,8 +394,11 @@ public class Main {
   public static Location getNewLocation(Connection connection, Scanner in) {
     boolean sameID = true;
 
-    System.out.println("Please give NodeID:");
+    System.out.println("Please give NodeID, or cancel to cancel:");
     String id = in.nextLine();
+    if (id.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
     while (sameID) { // test ID is not in database
       try {
         PreparedStatement stmt =
@@ -393,8 +407,11 @@ public class Main {
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {
           if (rs.getInt(1) == 1) {
-            System.out.println("Node ID already exists please enter another Node ID");
+            System.out.println("Node ID already exists please enter another Node ID, or cancel to cancel");
             id = in.nextLine();
+            if (id.compareToIgnoreCase("cancel") == 0) {
+              return null;
+            }
           } else {
             sameID = false;
           }
@@ -405,38 +422,75 @@ public class Main {
       }
     }
 
-    System.out.println("Please give x coordinate: ");
-    int xcoord = Integer.parseInt(in.nextLine());
+    System.out.println("Please give x coordinate or cancel to cancel: ");
+    String sxcoord = in.nextLine();
+    if (sxcoord.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
+    int xcoord = Integer.parseInt(sxcoord);
 
-    System.out.println("Please give y coordinate: ");
-    int ycoord = Integer.parseInt(in.nextLine());
 
-    System.out.println("Please give the floor: ");
+    System.out.println("Please give y coordinate or cancel to cancel: ");
+    String sycoord = in.nextLine();
+    if (sycoord.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
+    int ycoord = Integer.parseInt(sycoord);
+
+
+    System.out.println("Please give the floor or cancel to cancel: ");
     String floor = in.nextLine();
+    if (floor.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
 
-    System.out.println("Please give the building of the location: ");
+    System.out.println("Please give the building of the location or cancel to cancel: ");
     String building = in.nextLine();
+    if (building.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
 
-    System.out.println("Please give the type of location: ");
+    System.out.println("Please give the type of location or cancel to cancel: ");
     String type = in.nextLine();
+    if (type.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
 
-    System.out.println("Please give the long name of location: ");
+    System.out.println("Please give the long name of location or cancel to cancel: ");
     String lName = in.nextLine();
+    if (lName.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
 
-    System.out.println("Please give the abbreviation of the location: ");
+    System.out.println("Please give the abbreviation of the location or cancel to cancel: ");
     String sName = in.nextLine();
+    if (sName.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
 
     return new Location(id, xcoord, ycoord, floor, building, type, lName, sName);
   }
 
   public static void update(Connection connection, Scanner in, HashMap<String, Location> map) {
-    System.out.println("Enter ID of location:");
+    System.out.println("Enter ID of location or cancel to cancel:");
     String id = in.nextLine();
+    if (id.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
     id = databaseID(connection, id, in); // test if ID is in database
-    System.out.println("Enter new floor:");
+    if (id == null){
+      return;
+    }
+    System.out.println("Enter new floor or cancel to cancel:");
     String floor = in.nextLine();
-    System.out.println("Enter new location type");
+    if (floor.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
+    System.out.println("Enter new location type or cancel to cancel:");
     String type = in.nextLine();
+    if (type.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
     try {
       PreparedStatement stmt =
           connection.prepareStatement("UPDATE Location SET floor=?, nodeTYPE =? WHERE nodeID =?");
@@ -460,9 +514,15 @@ public class Main {
   }
 
   public static void deleteData(Connection connection, Scanner in, HashMap<String, Location> map) {
-    System.out.println("Enter ID of location:");
+    System.out.println("Enter ID of location or cancel to cancel:");
     String id = in.nextLine();
+    if (id.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
     id = databaseID(connection, id, in);
+    if (id == null){
+      return;
+    }
     // Delete using SQP
     try {
       PreparedStatement stmt3 = connection.prepareStatement("DELETE FROM Location WHERE Nodeid=?");
@@ -488,8 +548,11 @@ public class Main {
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {
           if (rs.getInt(1) == 0) {
-            System.out.println("Node ID does not exists please enter another Node ID");
+            System.out.println("Node ID does not exists please enter another Node ID or cancel to cancel:");
             id = in.nextLine();
+            if (id.compareToIgnoreCase("cancel") == 0) {
+              return null;
+            }
           } else {
             uniqueID = false;
           }
