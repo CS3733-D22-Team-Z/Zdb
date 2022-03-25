@@ -188,16 +188,28 @@ public class Main {
                       shortName)
                   + "\n");
         }
-      } catch (SQLException e) {
-        System.out.println("Query failed.");
-      } catch (IOException e) {
-        System.out.println("File write failed.");
+      } catch (Exception e) {
+        if (e instanceof SQLException) {
+          System.out.println("Query failed.");
+        } else if (e instanceof IOException) {
+          System.out.println("File write failed.");
+        } else {
+          System.out.println("Not a valid ID.");
+        }
+        e.printStackTrace();
       }
 
       try {
         writer.close();
-      } catch (IOException e) {
-        System.out.println("File writer close failed.");
+      } catch (Exception e) {
+        if (e instanceof SQLException) {
+          System.out.println("Connection failed. Check output console.");
+        } else if (e instanceof IOException) {
+          System.out.println("File writer close failed.");
+        } else {
+          System.out.println("Not a valid ID.");
+        }
+        e.printStackTrace();
       }
     }
   }
@@ -269,8 +281,12 @@ public class Main {
           DriverManager.getConnection(
               "jdbc:derby:myDB;create=true" + ";user=" + user + ";password=" + pwd);
 
-    } catch (SQLException e) {
-      System.out.println("Connection failed. Check output console.");
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println("Connection failed. Check output console.");
+      } else {
+        System.out.println("Not a valid ID");
+      }
       e.printStackTrace();
     }
 
@@ -316,9 +332,14 @@ public class Main {
               + "shortName Varchar(50),"
               + "constraint LOCATION_PK Primary Key (nodeID))");
       System.out.println("Created new table Location");
-    } catch (SQLException e) {
-      System.out.println(e.getSQLState());
-      System.out.println("Unable to create new table Location");
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println(((SQLException) e).getSQLState());
+        System.out.println("Unable to create new table Location");
+      } else {
+        System.out.println("Not a valid ID");
+      }
+      e.printStackTrace();
     }
 
     return connection;
@@ -344,8 +365,13 @@ public class Main {
       pstmt.executeUpdate();
       connection.commit();
       // loop through the array to insert into DB
-    } catch (SQLException e) {
-      System.out.println("Insert prepared statements failed to load");
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println("Insert prepared statements failed to load");
+      } else {
+        System.out.println("Not a valid ID");
+      }
+      e.printStackTrace();
     }
   }
 
@@ -412,8 +438,13 @@ public class Main {
             nodeID, xcoord, ycoord, floor, building, nodeType, longName, shortName);
       }
 
-    } catch (SQLException e) {
-      System.out.println("Display not working");
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println("Display not working");
+      } else {
+        System.out.println("Not a valid ID");
+      }
+      e.printStackTrace();
     }
   }
 
@@ -467,8 +498,13 @@ public class Main {
       temp.setNodeType(type);
       map.put(id, temp);
 
-    } catch (SQLException e) {
-      System.out.println("Cannot update location");
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println("Cannot update location");
+      } else {
+        System.out.println("Not a valid ID");
+      }
+      e.printStackTrace();
     }
   }
 
@@ -482,8 +518,12 @@ public class Main {
       stmt3.execute();
       connection.commit();
       map.remove(id);
-    } catch (SQLException e) {
-      System.out.println("ID not found");
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println("ID not found");
+      } else {
+        System.out.println("Not a valid ID");
+      }
       e.printStackTrace();
     }
   }
