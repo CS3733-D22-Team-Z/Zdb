@@ -58,7 +58,8 @@ jar {
 def codeCoverageExcludes = [
         'edu.wpi.teamZ.App',
         'edu.wpi.teamZ.Main',
-        'edu.wpi.teamZ.Derby'
+        'edu.wpi.teamZ.Derby',
+        'edu.wpi.teamZ.Location'
 ]
 
 jacoco {
