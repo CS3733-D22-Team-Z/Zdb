@@ -20,10 +20,18 @@ public class Main {
     System.out.println("Password: ");
     String pwd = scanner.nextLine();
 
-    // scanner.close();
-
     // Access Database
-    Connection conn = enterDB(username, pwd);
+    Connection conn = null;
+    while (conn == null) {
+      conn = enterDB(username, pwd);
+      if (conn == null) {
+        System.out.println("Username and password are not correct");
+        System.out.println("Username: ");
+        username = scanner.nextLine();
+        System.out.println("Password: ");
+        pwd = scanner.nextLine();
+      }
+    }
 
     // Initialize hashmap
     HashMap<String, Location> locationObjects = new HashMap<>();
@@ -225,7 +233,6 @@ public class Main {
 
     } catch (SQLException e) {
       System.out.println("Connection failed. Check output console.");
-      e.printStackTrace();
     }
 
     // set authentication
