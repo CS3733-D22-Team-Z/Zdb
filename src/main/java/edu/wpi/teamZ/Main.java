@@ -184,12 +184,12 @@ public class Main {
         break;
       case 3:
         // TODO: new info
-        Location newLoc = getNewLocation(in);
+        Location newLoc = getNewLocation(conn, in);
         insertData(newLoc, conn, map);
         break;
       case 4:
         // TODO: delete info
-        deleteData(conn, in);
+        deleteData(conn, in, map);
         break;
       case 5:
         dataToCSV(conn, in);
