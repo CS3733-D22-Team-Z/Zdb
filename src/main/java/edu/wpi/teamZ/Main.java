@@ -35,10 +35,11 @@ public class Main {
 
     // Initialize hashmap
     HashMap<String, Location> locationObjects = new HashMap<>();
-
-    File f = checkCSV();
+    File f = null;
+    while (f == null) {
+      f = checkCSV(scanner);
+    }
     readCSV(f, conn, locationObjects);
-
     while (!done) {
       printUI();
       takeAction(scanner, conn, locationObjects);
@@ -51,11 +52,26 @@ public class Main {
     }
   }
 
-  public static File checkCSV() {
+  public static File checkCSV(Scanner in) {
 
     // Get the file
-    File f = new File("src/TowerLocations.csv");
+    File f;
 
+    System.out.println(
+        "Enter a filepath from home to read from, including filename (Default to Downloads\\TowerLocations.csv with \"ENTER\"): ");
+    System.out.println(
+        "Example for folder \"outfolder\" on Desktop: \\Desktop\\outfolder\\filename.csv");
+    System.out.println("Alternatively, \"Cancel\" to cancel and return to menu.");
+    String path = in.nextLine();
+    if (path.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
+    if (path.compareToIgnoreCase("") == 0) {
+      path = System.getProperty("user.home") + "\\Downloads\\TowerLocations.csv";
+    } else {
+      path = System.getProperty("user.home") + path;
+    }
+    f = new File(path);
     // Create new file
     // if it does not exist
     if (f.exists()) {
