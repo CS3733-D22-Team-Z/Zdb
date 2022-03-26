@@ -75,7 +75,7 @@ public class Main {
     String line;
     line = br.readLine(); // skip first line (headers)
     while ((line = br.readLine()) != null) {
-      System.out.println(line);
+      // System.out.println(line);
       String[] args = line.split(","); // regex split into array of arg strings
 
       Location input =
@@ -196,7 +196,7 @@ public class Main {
         break;
       case 3:
         Location newLoc = getNewLocation(conn, in);
-        if (newLoc != null){
+        if (newLoc != null) {
           insertData(newLoc, conn, map);
         }
         break;
@@ -242,7 +242,7 @@ public class Main {
     }
 
     // set authentication
-    /*try {
+    try {
       Statement s = connection.createStatement();
       s.executeUpdate(
           "CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY(\n"
@@ -258,7 +258,7 @@ public class Main {
       System.out.println("Authentication initialized");
     } catch (SQLException e) {
       System.out.println("Failed to set credentials");
-    }*/
+    }
 
     if (connection != null) {
       System.out.println("Apache Derby connection established!");
@@ -320,9 +320,9 @@ public class Main {
     // Ask if display all or display 1
     System.out.println(
         "Select which location you want to view using NodeID\n"
-            + "If you want to view all type ALL, \"cancel\" to cancel:" );
+            + "If you want to view all type ALL, \"cancel\" to cancel:");
     String option = in.nextLine();
-    if (option.compareToIgnoreCase("cancel") == 0){
+    if (option.compareToIgnoreCase("cancel") == 0) {
       return;
     }
     // Display location info
@@ -332,7 +332,7 @@ public class Main {
         selectStmt = connection.prepareStatement("SELECT NODEID FROM Location");
       } else {
         option = databaseID(connection, option, in);
-        if (option == null){
+        if (option == null) {
           return;
         }
         selectStmt = connection.prepareStatement("SELECT NODEID FROM Location WHERE NODEID = ?");
@@ -407,7 +407,8 @@ public class Main {
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {
           if (rs.getInt(1) == 1) {
-            System.out.println("Node ID already exists please enter another Node ID, or cancel to cancel");
+            System.out.println(
+                "Node ID already exists please enter another Node ID, or cancel to cancel");
             id = in.nextLine();
             if (id.compareToIgnoreCase("cancel") == 0) {
               return null;
@@ -429,14 +430,12 @@ public class Main {
     }
     int xcoord = Integer.parseInt(sxcoord);
 
-
     System.out.println("Please give y coordinate or cancel to cancel: ");
     String sycoord = in.nextLine();
     if (sycoord.compareToIgnoreCase("cancel") == 0) {
       return null;
     }
     int ycoord = Integer.parseInt(sycoord);
-
 
     System.out.println("Please give the floor or cancel to cancel: ");
     String floor = in.nextLine();
@@ -478,7 +477,7 @@ public class Main {
       return;
     }
     id = databaseID(connection, id, in); // test if ID is in database
-    if (id == null){
+    if (id == null) {
       return;
     }
     System.out.println("Enter new floor or cancel to cancel:");
@@ -520,7 +519,7 @@ public class Main {
       return;
     }
     id = databaseID(connection, id, in);
-    if (id == null){
+    if (id == null) {
       return;
     }
     // Delete using SQP
@@ -548,7 +547,8 @@ public class Main {
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {
           if (rs.getInt(1) == 0) {
-            System.out.println("Node ID does not exists please enter another Node ID or cancel to cancel:");
+            System.out.println(
+                "Node ID does not exists please enter another Node ID or cancel to cancel:");
             id = in.nextLine();
             if (id.compareToIgnoreCase("cancel") == 0) {
               return null;
