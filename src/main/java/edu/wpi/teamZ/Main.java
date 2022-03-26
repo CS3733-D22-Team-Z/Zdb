@@ -156,16 +156,28 @@ public class Main {
                       rs.getString("SHORTNAME"))
                   + "\n");
         }
-      } catch (SQLException e) {
-        System.out.println("Query failed.");
-      } catch (IOException e) {
-        System.out.println("File write failed.");
+      } catch (Exception e) {
+        if (e instanceof SQLException) {
+          System.out.println("Query failed.");
+        } else if (e instanceof IOException) {
+          System.out.println("File write failed.");
+        } else {
+          System.out.println("Not a valid ID.");
+        }
+        e.printStackTrace();
       }
 
       try {
         writer.close();
-      } catch (IOException e) {
-        System.out.println("File writer close failed.");
+      } catch (Exception e) {
+        if (e instanceof SQLException) {
+          System.out.println("Connection failed. Check output console.");
+        } else if (e instanceof IOException) {
+          System.out.println("File writer close failed.");
+        } else {
+          System.out.println("Not a valid ID.");
+        }
+        e.printStackTrace();
       }
     }
   }
@@ -239,6 +251,7 @@ public class Main {
 
     } catch (SQLException e) {
       System.out.println("Connection failed. Check output console.");
+      return null;
     }
 
     // set authentication
@@ -258,6 +271,8 @@ public class Main {
       System.out.println("Authentication initialized");
     } catch (SQLException e) {
       System.out.println("Failed to set credentials");
+    } catch (NullPointerException e) {
+      //
     }
 
     if (connection != null) {
@@ -293,7 +308,6 @@ public class Main {
 
   public static void insertData(
       Location info, Connection connection, HashMap<String, Location> map) {
-    map.put(info.getID(), info);
     try {
       PreparedStatement pstmt =
           connection.prepareStatement(
@@ -310,9 +324,17 @@ public class Main {
       // insert it
       pstmt.executeUpdate();
       connection.commit();
+
+      // Insert into hashmap
+      map.put(info.getID(), info);
       // loop through the array to insert into DB
-    } catch (SQLException e) {
-      System.out.println("Insert prepared statements failed to load");
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println("Insert prepared statements failed to load");
+      } else {
+        System.out.println("Failed to insert into hashmap");
+      }
+      e.printStackTrace();
     }
   }
 
@@ -386,8 +408,13 @@ public class Main {
             nodeID, xcoord, ycoord, floor, building, nodeType, longName, shortName);
       }
 
-    } catch (SQLException e) {
-      System.out.println("Display not working");
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println("Display not working");
+      } else {
+        System.out.println("Not a valid ID");
+      }
+      e.printStackTrace();
     }
   }
 
@@ -423,7 +450,7 @@ public class Main {
       }
     }
 
-    System.out.println("Please give x coordinate or cancel to cancel: ");
+    /*System.out.println("Please give x coordinate or cancel to cancel: ");
     String sxcoord = in.nextLine();
     if (sxcoord.compareToIgnoreCase("cancel") == 0) {
       return null;
@@ -465,9 +492,9 @@ public class Main {
     String sName = in.nextLine();
     if (sName.compareToIgnoreCase("cancel") == 0) {
       return null;
-    }
+    }*/
 
-    return new Location(id, xcoord, ycoord, floor, building, type, lName, sName);
+    return new Location(id);
   }
 
   public static void update(Connection connection, Scanner in, HashMap<String, Location> map) {
@@ -502,14 +529,19 @@ public class Main {
 
       System.out.println("nodeID " + id + " has been updated \n");
 
-    } catch (SQLException e) {
-      System.out.println("Cannot update location");
-    }
+      Location temp = map.get(id);
+      temp.setFloor(floor);
+      temp.setNodeType(type);
+      map.put(id, temp);
 
-    Location temp = map.get(id);
-    temp.setFloor(floor);
-    temp.setNodeType(type);
-    map.put(id, temp);
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println("Cannot update location");
+      } else {
+        System.out.println("Not a valid ID");
+      }
+      e.printStackTrace();
+    }
   }
 
   public static void deleteData(Connection connection, Scanner in, HashMap<String, Location> map) {
@@ -528,13 +560,20 @@ public class Main {
       stmt3.setString(1, id);
       stmt3.execute();
       connection.commit();
-      System.out.println("NodeID " + id + (" has been deleted\n"));
-    } catch (SQLException e) {
-      System.out.println("ID not found");
-      e.printStackTrace();
-    }
 
-    map.remove(id);
+      // remove from the hashmap
+      map.remove(id);
+
+      System.out.println("NodeID " + id + (" has been deleted\n"));
+    } catch (Exception e) {
+      if (e instanceof SQLException) {
+        System.out.println("ID not found");
+      } else {
+        System.out.println("Not a valid ID");
+      }
+      e.printStackTrace();
+      System.out.println("NodeID " + id + (" has been deleted\n"));
+    }
   }
 
   public static String databaseID(Connection connection, String id, Scanner in) {
