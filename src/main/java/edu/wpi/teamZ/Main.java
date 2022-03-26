@@ -239,6 +239,7 @@ public class Main {
 
     } catch (SQLException e) {
       System.out.println("Connection failed. Check output console.");
+      return null;
     }
 
     // set authentication
