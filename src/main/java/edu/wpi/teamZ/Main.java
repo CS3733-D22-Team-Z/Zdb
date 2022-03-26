@@ -24,6 +24,16 @@ public class Main {
 
     // Access Database
     Connection conn = enterDB(username, pwd);
+    while (conn == null) {
+      conn = enterDB(username, pwd);
+      if (conn == null) {
+        System.out.println("Username and password are not correct");
+        System.out.println("Username: ");
+        username = scanner.nextLine();
+        System.out.println("Password: ");
+        pwd = scanner.nextLine();
+      }
+    }
 
     // Initialize hashmap
     HashMap<String, Location> locationObjects = new HashMap<>();
@@ -239,7 +249,6 @@ public class Main {
         update(conn, in, map);
         break;
       case 3:
-        // TODO: new info
         Location newLoc = getNewLocation(in);
         insertData(newLoc, conn, map);
         break;
@@ -379,9 +388,11 @@ public class Main {
     // Ask if display all or display 1
     System.out.println(
         "Select which location you want to view using NodeID\n"
-            + "If you want to view all type ALL: ");
+            + "If you want to view all type ALL, \"cancel\" to cancel:");
     String option = in.nextLine();
-
+    if (option.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
     // Display location info
     try {
       PreparedStatement selectStmt =
@@ -389,6 +400,13 @@ public class Main {
       selectStmt.setString(1, option);
       if (option.equals("ALL")) {
         selectStmt = connection.prepareStatement("SELECT NODEID FROM Location");
+      } else {
+        option = databaseID(connection, option, in);
+        if (option == null) {
+          return;
+        }
+        selectStmt = connection.prepareStatement("SELECT NODEID FROM Location WHERE NODEID = ?");
+        selectStmt.setString(1, option);
       }
 
       ResultSet rset = selectStmt.executeQuery();
@@ -452,37 +470,68 @@ public class Main {
     System.out.println("Please give NodeID:");
     String id = in.nextLine();
 
-    System.out.println("Please give x coordinate: ");
-    int xcoord = Integer.parseInt(in.nextLine());
+    /*
+    System.out.println("Please give y coordinate or cancel to cancel: ");
+    String sycoord = in.nextLine();
+    if (sycoord.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
+    int ycoord = Integer.parseInt(sycoord);
 
-    System.out.println("Please give y coordinate: ");
-    int ycoord = Integer.parseInt(in.nextLine());
 
-    System.out.println("Please give the floor: ");
+    System.out.println("Please give the floor or cancel to cancel: ");
     String floor = in.nextLine();
+    if (floor.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
 
-    System.out.println("Please give the building of the location: ");
+    System.out.println("Please give the building of the location or cancel to cancel: ");
     String building = in.nextLine();
+    if (building.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
 
-    System.out.println("Please give the type of location: ");
+    System.out.println("Please give the type of location or cancel to cancel: ");
     String type = in.nextLine();
+    if (type.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
 
-    System.out.println("Please give the long name of location: ");
+    System.out.println("Please give the long name of location or cancel to cancel: ");
     String lName = in.nextLine();
+    if (lName.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }
 
-    System.out.println("Please give the abbreviation of the location: ");
+    System.out.println("Please give the abbreviation of the location or cancel to cancel: ");
     String sName = in.nextLine();
+    if (sName.compareToIgnoreCase("cancel") == 0) {
+      return null;
+    }*/
 
-    return new Location(id, xcoord, ycoord, floor, building, type, lName, sName);
+    return new Location(id);
   }
 
   public static void update(Connection connection, Scanner in, HashMap<String, Location> map) {
-    System.out.println("Enter ID of location:");
+    System.out.println("Enter ID of location or cancel to cancel:");
     String id = in.nextLine();
-    System.out.println("Enter new floor:");
+    if (id.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
+    id = databaseID(connection, id, in); // test if ID is in database
+    if (id == null) {
+      return;
+    }
+    System.out.println("Enter new floor or cancel to cancel:");
     String floor = in.nextLine();
-    System.out.println("Enter new location type");
+    if (floor.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
+    System.out.println("Enter new location type or cancel to cancel:");
     String type = in.nextLine();
+    if (type.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
     try {
       PreparedStatement stmt =
           connection.prepareStatement("UPDATE Location SET floor=?, nodeTYPE =? WHERE nodeID =?");
@@ -509,8 +558,15 @@ public class Main {
   }
 
   public static void deleteData(Connection connection, Scanner in, HashMap<String, Location> map) {
-    System.out.println("Enter ID of location:");
+    System.out.println("Enter ID of location or cancel to cancel:");
     String id = in.nextLine();
+    if (id.compareToIgnoreCase("cancel") == 0) {
+      return;
+    }
+    id = databaseID(connection, id, in);
+    if (id == null) {
+      return;
+    }
     // Delete using SQP
     try {
       PreparedStatement stmt3 = connection.prepareStatement("DELETE FROM Location WHERE Nodeid=?");
@@ -525,6 +581,37 @@ public class Main {
         System.out.println("Not a valid ID");
       }
       e.printStackTrace();
+      System.out.println("NodeID " + id + (" has been deleted\n"));
     }
+
+    map.remove(id);
+  }
+
+  public static String databaseID(Connection connection, String id, Scanner in) {
+    Boolean uniqueID = true;
+    while (uniqueID) { // Test ID is in database
+      try {
+        PreparedStatement stmt =
+            connection.prepareStatement("SELECT COUNT(*) FROM Location WHERE Nodeid=?");
+        stmt.setString(1, id);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+          if (rs.getInt(1) == 0) {
+            System.out.println(
+                "Node ID does not exists please enter another Node ID or cancel to cancel:");
+            id = in.nextLine();
+            if (id.compareToIgnoreCase("cancel") == 0) {
+              return null;
+            }
+          } else {
+            uniqueID = false;
+          }
+        }
+        connection.commit();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+    return id;
   }
 }
