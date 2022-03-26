@@ -96,12 +96,12 @@ public class Main {
   }
 
   public static void printUI() {
-    System.out.println("1 – Location Information");
-    System.out.println("2 – Change Floor and Type");
-    System.out.println("3 – Enter Location");
-    System.out.println("4 – Delete Location");
-    System.out.println("5 – Save Locations to CSV file");
-    System.out.println("6 – Exit Program");
+    System.out.println("1 - Location Information");
+    System.out.println("2 - Change Floor and Type");
+    System.out.println("3 - Enter Location");
+    System.out.println("4 - Delete Location");
+    System.out.println("5 - Save Locations to CSV file");
+    System.out.println("6 - Exit Program");
   }
 
   public static void dataToCSV(Connection conn, Scanner in) {
